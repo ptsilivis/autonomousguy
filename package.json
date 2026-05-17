@@ -1,0 +1,22 @@
+{
+  "name": "autonomousguy",
+  "version": "0.1.0",
+  "description": "Editor-agnostic AI skill prompts for embedded automotive engineers",
+  "bin": {
+    "autonomousguy": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "skills/",
+    "install.sh",
+    "install.ps1"
+  ],
+  "keywords": ["autosar", "misra", "embedded", "automotive", "ai", "prompts", "iso26262", "safety"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.0"
+  }
+}
