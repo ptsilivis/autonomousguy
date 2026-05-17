@@ -8,6 +8,16 @@ const path = require('path');
 const pkg = require('../package.json');
 
 // ---------------------------------------------------------------------------
+// CLI entry — accept `init` subcommand (or no args) to start the installer
+// ---------------------------------------------------------------------------
+const arg = process.argv[2];
+if (arg !== undefined && arg !== 'init') {
+  console.error(`\nUnknown command: ${arg}`);
+  console.error(`Usage: autonomousguy init\n`);
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
 // Frontmatter parser — no external deps
 // ---------------------------------------------------------------------------
 function parseFrontmatter(filePath) {

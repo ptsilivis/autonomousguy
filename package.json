@@ -11,6 +11,14 @@
     "install.sh",
     "install.ps1"
   ],
+  "homepage": "https://github.com/ptsilivis/autonomousguy#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ptsilivis/autonomousguy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ptsilivis/autonomousguy/issues"
+  },
   "keywords": [
     "autosar",
     "misra",
