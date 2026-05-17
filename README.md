@@ -1,6 +1,6 @@
 # autonomousguy
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/ptsilivis/autonomousguy/releases)
+[![npm version](https://img.shields.io/npm/v/autonomousguy.svg)](https://www.npmjs.com/package/autonomousguy)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-lightgrey)](#installation)
