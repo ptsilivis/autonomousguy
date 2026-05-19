@@ -5,11 +5,11 @@
 [![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-lightgrey)](#installation)
 
-**An AI skill library for embedded automotive engineers.**
+**AI skills for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development.**
 
-29 domain-accurate prompt files covering the full ECU software lifecycle: AUTOSAR integration, MISRA compliance, ISO 26262 safety analysis, requirements, testing, documentation, toolchain setup, debugging, and change management.
+**autonomousguy** is a library of 29 domain-accurate AI prompt files (_skills_) covering the full ECU software lifecycle. Use it with Claude Code, GitHub Copilot, Cursor, Gemini CLI, or any AI tool to get consistent, expert-level assistance on AUTOSAR integration, MISRA C:2012 compliance, ISO 26262 safety analysis, requirements engineering, testing, documentation, toolchain setup, debugging, and change management.
 
-Install once. Use with any AI tool. No lock-in.
+Install once. Works with any AI tool. No lock-in.
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "name": "autonomousguy",
   "version": "0.1.2",
-  "description": "Editor-agnostic AI skill prompts for embedded automotive engineers",
+  "description": "AI skill prompts for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development",
   "bin": {
     "autonomousguy": "bin/cli.js"
   },
@@ -20,14 +20,26 @@
     "url": "https://github.com/ptsilivis/autonomousguy/issues"
   },
   "keywords": [
+    "autonomousguy",
     "autosar",
     "misra",
     "embedded",
     "automotive",
     "ai",
-    "prompts",
+    "ai-skills",
+    "ai-prompts",
+    "llm-prompts",
     "iso26262",
-    "safety"
+    "safety",
+    "ecu",
+    "embedded-systems",
+    "automotive-engineering",
+    "claude-code",
+    "github-copilot",
+    "cursor",
+    "gemini-cli",
+    "arxml",
+    "functional-safety"
   ],
   "license": "MIT",
   "engines": {
