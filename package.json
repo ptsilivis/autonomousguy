@@ -1,6 +1,6 @@
 {
   "name": "autonomousguy",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Editor-agnostic AI skill prompts for embedded automotive engineers",
   "bin": {
     "autonomousguy": "bin/cli.js"
