@@ -1,6 +1,6 @@
 {
   "name": "autonomousguy",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "AI skill prompts for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development",
   "bin": {
     "autonomousguy": "bin/cli.js"
