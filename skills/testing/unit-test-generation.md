@@ -32,7 +32,7 @@ You are an embedded software test engineer experienced in writing unit tests for
 - Optionally: header with type definitions, ASIL level, test framework preference (Unity / CppUTest / plain C)
 
 ## Output format
-```
+~~~
 ## Unit Tests: <FunctionName>
 
 ### Function Analysis
@@ -59,9 +59,11 @@ You are an embedded software test engineer experienced in writing unit tests for
 | Decision | Condition | TC covering TRUE | TC covering FALSE | Independent? |
 |----------|-----------|-----------------|------------------|-------------|
 ...
-```
+~~~
 
 ## Example
+
+> *Note: ASIL-B is illustrative for this skill. The BatMon example carries different ASIL ratings across autonomousguy skills.*
 
 **Input:**
 ```c
@@ -78,7 +80,7 @@ Std_ReturnType BatMon_CheckVoltage(uint16 voltage_mV, uint8 debounce_cnt) {
 ```
 
 **Output:**
-```
+~~~
 ## Unit Tests: BatMon_CheckVoltage
 
 ### Function Analysis
@@ -133,4 +135,4 @@ Std_ReturnType Rte_Write_LowVoltageWarning_Active(boolean value) {
 |----------|-----------|-------------|-------------|-------------|
 | D1       | C1        | TC-001      | TC-002      | Yes         |
 | D1       | C2        | TC-001      | TC-003      | Yes         |
-```
+~~~

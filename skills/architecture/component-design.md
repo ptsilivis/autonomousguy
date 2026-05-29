@@ -35,7 +35,7 @@ You are an AUTOSAR system architect with experience designing software component
 - Optionally: target ECU hardware, ASIL level, existing SWC list in the composition
 
 ## Output format
-```
+~~~
 ## AUTOSAR Component Design
 
 ### Feature Decomposition
@@ -64,7 +64,7 @@ You are an AUTOSAR system architect with experience designing software component
 
 ### Integration Notes
 [ASIL, OS task, memory section, known constraints]
-```
+~~~
 
 ## Example
 

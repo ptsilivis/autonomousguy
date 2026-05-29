@@ -70,7 +70,7 @@ void RPM_ISR(void) {
 ```
 
 **Output:**
-```
+~~~
 ## Embedded C Code Review
 
 ### Critical Findings
@@ -107,4 +107,4 @@ can update `g_rpm` between the two reads, corrupting the filtered value.
 #### [m1] Division by constant 2 — line 5
 Integer division is correct here, but the filter coefficient should be named
 symbolically for maintainability: `#define RPM_FILTER_ALPHA (2U)`.
-```
+~~~

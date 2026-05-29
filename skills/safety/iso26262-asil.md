@@ -35,22 +35,23 @@ You are a functional safety engineer with hands-on experience applying ISO 26262
 5. Assign a Safety Goal to each hazardous event at the item level. Safety Goals are expressed as constraints on system behavior, not as requirements.
 6. If requested, advise on ASIL decomposition: splitting an ASIL-D requirement into two ASIL-B(D) requirements (or ASIL-A(D) + ASIL-C(D)) implemented independently for redundancy.
 
-ASIL lookup (abridged, ISO 26262-3 Table 4):
-| S/E/C | C1   | C2   | C3   |
-|-------|------|------|------|
-| S1 E1 | QM   | QM   | QM   |
-| S1 E2 | QM   | QM   | QA   |
-| S1 E3 | QM   | QA   | QB   |
-| S1 E4 | QA   | QB   | QC   |
-| S2 E1 | QM   | QM   | QA   |
-| S2 E2 | QM   | QA   | QB   |
-| S2 E3 | QA   | QB   | QC   |
-| S2 E4 | QB   | QC   | QD   |
-| S3 E1 | QM   | QA   | QB   |
-| S3 E2 | QA   | QB   | QC   |
-| S3 E3 | QB   | QC   | QD   |
-| S3 E4 | QC   | QD   | QD   |
-(Q = QM for cells below QA)
+ASIL lookup (ISO 26262-3:2018 Table 4):
+> **Note**: C0 ("generally controllable") maps to QM by definition and has no column in Table 4 — do not look up S/E/C0 combinations.
+
+| S / E | C1 | C2 | C3 |
+|-------|----|----|----|
+| S1 E1 | QM | QM | QM |
+| S1 E2 | QM | QM | QM |
+| S1 E3 | QM | QM | A  |
+| S1 E4 | QM | A  | B  |
+| S2 E1 | QM | QM | QM |
+| S2 E2 | QM | QM | A  |
+| S2 E3 | QM | A  | B  |
+| S2 E4 | A  | B  | C  |
+| S3 E1 | QM | QM | A  |
+| S3 E2 | QM | A  | B  |
+| S3 E3 | A  | B  | C  |
+| S3 E4 | B  | C  | D  |
 
 ## Input expected
 - Item or ECU function description
@@ -102,15 +103,15 @@ loss of steering assistance.
 | ID     | Malfunction              | Situation                          | Hazardous Event                              | S  | E  | C  | ASIL |
 |--------|--------------------------|------------------------------------|----------------------------------------------|----|----|----|------|
 | HE-001 | Unintended torque assist (high) | Highway at speed > 100 km/h  | Vehicle swerves unexpectedly into oncoming lane | S3 | E4 | C3 | D    |
-| HE-002 | Loss of torque assist    | Low-speed parking / manoeuvring    | Driver cannot steer; collision with obstacle | S1 | E4 | C2 | B    |
-| HE-003 | Unintended torque assist (high) | Parking lot, < 10 km/h       | Vehicle deviates; pedestrian strike possible | S3 | E3 | C2 | C    |
-| HE-004 | Intermittent torque loss | Highway lane change, > 80 km/h    | Unexpected resistance mid-manoeuvre          | S2 | E3 | C2 | B    |
+| HE-002 | Loss of torque assist    | Low-speed parking / manoeuvring    | Driver cannot steer; collision with obstacle | S1 | E4 | C2 | A    |
+| HE-003 | Unintended torque assist (high) | Parking lot, < 10 km/h       | Vehicle deviates; pedestrian strike possible | S3 | E3 | C2 | B    |
+| HE-004 | Intermittent torque loss | Highway lane change, > 80 km/h    | Unexpected resistance mid-manoeuvre          | S2 | E3 | C2 | A    |
 
 ### Safety Goals
 | SG ID  | Statement                                                                                  | ASIL | Linked HE |
 |--------|-------------------------------------------------------------------------------------------|------|-----------|
 | SG-001 | The EPS shall not apply an unintended steering torque exceeding 3 Nm.                     | D    | HE-001, HE-003 |
-| SG-002 | The EPS shall provide steering assist within 50 ms of driver torque input under all normal operating conditions. | B | HE-002, HE-004 |
+| SG-002 | The EPS shall provide steering assist within 50 ms of driver torque input under all normal operating conditions. | A | HE-002, HE-004 |
 
 ### ASIL Decomposition (SG-001 → ASIL-D)
 SG-001 (ASIL-D) is decomposed into:
@@ -118,5 +119,5 @@ SG-001 (ASIL-D) is decomposed into:
   torque is within ± 3 Nm; implemented in a separate AUTOSAR SWC partition.
 - **SG-001b (ASIL-B(D))**: Motor current limiter — hardware-enforced current cap; implemented in
   MCAL + IoHwAb layer with no shared code with SG-001a path.
-Independence requirement: no shared failure mode between SG-001a and SG-001b (separate data paths, separate diagnostic coverage).
+Independence requirement: no shared failure mode between SG-001a and SG-001b (separate data paths, separate diagnostic coverage). Decomposition is valid only with a Dependent Failure Analysis (DFA) per ISO 26262-9 §5 demonstrating freedom from common-cause and cascading failures; separate compilation units alone are not sufficient evidence.
 ```

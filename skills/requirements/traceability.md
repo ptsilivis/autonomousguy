@@ -61,6 +61,8 @@ You are a requirements engineer with ISO 26262 and ASPICE experience, responsibl
 
 ## Example
 
+> *Note: ASIL values in this example are illustrative for this skill. The BatMon module carries different ASIL ratings across autonomousguy skill examples.*
+
 **Input:**
 Requirements: SW-REQ-BATMON-001 (QM), SW-REQ-BATMON-002 (QM), SW-REQ-BATMON-003 (QM), SW-REQ-BATMON-004 (QM, safety-tagged by safety team)
 Design: BatMon_MainRunnable, BatMon_ADC_Port, BatMon_Init, LowVoltageWarning_Port, DEM_Report_Operation

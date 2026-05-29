@@ -31,7 +31,7 @@ You are an AUTOSAR software architect specializing in port interface design for 
 - Optionally: physical signal range, resolution, units, and which SWC is sender/receiver
 
 ## Output format
-```
+~~~
 ## Interface Definition: <InterfaceName>
 
 ### Type: [SenderReceiver | ClientServer | ModeSwitch | Parameter]
@@ -54,7 +54,7 @@ You are an AUTOSAR software architect specializing in port interface design for 
 
 ### ComSpec Notes
 [Sender and receiver ComSpec values, AliveTimeout recommendations]
-```
+~~~
 
 ## Example
 
@@ -65,7 +65,7 @@ Also define an interface for requesting a brake pressure calibration operation (
 E_NOT_OK + an error code).
 
 **Output:**
-```
+~~~
 ## Interface Definition: BrakePressureIf (SenderReceiver)
 
 ### Data Elements
@@ -141,4 +141,4 @@ typedef uint8 BrakeSensorStatus_t;
     <APPLICATION-ERROR><SHORT-NAME>E_BUSY</SHORT-NAME><ERROR-CODE>1</ERROR-CODE></APPLICATION-ERROR>
   </POSSIBLE-ERRORS>
 </CLIENT-SERVER-INTERFACE>
-```
+~~~

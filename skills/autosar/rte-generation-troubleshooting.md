@@ -63,7 +63,7 @@ Generation aborted.
 ```
 
 **Output:**
-```
+~~~
 ## RTE Generation Troubleshoot
 
 ### Generation Phase
@@ -86,7 +86,7 @@ No `ASSEMBLY-SW-CONNECTOR` element connecting:
 4. Requirer end: select `FanControl_AppSWC` → port `RCoolantTemp`.
 5. Save and run "Check Consistency" — should show 0 errors before regenerating.
 
-**In ARXML** (manual edit):
+**In ARXML** (manual edit — representative for AUTOSAR R4.x schema; verify element names and `DEST` enum values against your specific AUTOSAR release):
 ```xml
 <ASSEMBLY-SW-CONNECTOR>
   <SHORT-NAME>Conn_CoolantTemp</SHORT-NAME>
@@ -106,4 +106,4 @@ No `ASSEMBLY-SW-CONNECTOR` element connecting:
 2. Verify both SWCs appear in the composition's SWC prototype list.
 3. Confirm `CoolantTempIf` interface short-name matches on both port references.
 4. Trigger RTE generation — contract phase should now generate `Rte_FanControl_AppSWC.h` and `Rte_CoolantSensor_SensorSWC.h`.
-```
+~~~

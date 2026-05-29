@@ -1,3 +1,6 @@
+# local review / planning docs — not for version control
+docs/
+
 # dependencies
 node_modules/
 

@@ -19,8 +19,8 @@ You are a functional safety engineer translating HARA hazardous events and ASIL 
    - References the ASIL to be maintained through design.
 2. Define the safe state for each Safety Goal:
    - The safe state must be reachable from the hazardous event via a deterministic, bounded transition.
-   - Specify FTTI: the time window from hazard occurrence to safe state activation within which no unreasonable risk occurs.
-   - Specify FTTS (Fault Tolerant Time State): how long the safe state must be maintained.
+   - Define the FTTI (Fault Tolerant Time Interval): the maximum time from **fault occurrence** to the onset of a hazardous event in the absence of a safety mechanism. FTTI is the budget that FDTI (Fault Detection Time Interval) and FRTI (Fault Reaction Time Interval) must jointly satisfy: FDTI + FRTI ≤ FTTI.
+   - Define the safe-state hold time (EOTI — Emergency Operation Time Interval): the minimum duration the safe state must be maintained after activation.
 3. Derive high-level Functional Safety Requirements (FSR) from each Safety Goal:
    - FSRs are system-level design constraints that satisfy the Safety Goal.
    - Each FSR must be verifiable and allocated to a system element (ECU, sensor, actuator, network).
@@ -39,8 +39,8 @@ You are a functional safety engineer translating HARA hazardous events and ASIL 
 - **ASIL**: [A | B | C | D]
 - **Linked Hazardous Event(s)**: [HE-xxx, HE-yyy]
 - **Safe State**: [description of the safe system state]
-- **FTTI**: [time from hazard onset to safe state activation, e.g., ≤ 100 ms]
-- **FTTS**: [minimum time safe state must be maintained, e.g., until ignition cycle reset]
+- **FTTI**: [maximum time from fault occurrence to hazardous event onset; FDTI + FRTI ≤ FTTI, e.g., FTTI = 150 ms, FDTI ≤ 20 ms + FRTI ≤ 30 ms = 50 ms total]
+- **Safe-state hold time (EOTI)**: [minimum duration the safe state must be maintained, e.g., until ignition cycle reset]
 
 ### Functional Safety Requirements (derived from SG-<NNN>)
 | FSR ID     | Statement                                              | ASIL | Allocated To         |
@@ -64,8 +64,8 @@ HE-003: EPS applies unintended high torque at low speed. ASIL-C.
 - **ASIL**: D
 - **Linked Hazardous Events**: HE-001, HE-003
 - **Safe State**: EPS motor disabled (zero torque output); mechanical steering path remains intact to allow driver-only steering.
-- **FTTI**: ≤ 50 ms from detection of torque command anomaly to motor disable (derived from 150 ms system-level budget minus 100 ms driver reaction time at 100 km/h).
-- **FTTS**: Maintained until ECU power cycle or successful system reset with fault cleared.
+- **FTTI**: 150 ms (budget from fault occurrence to potential hazardous steering event at 100 km/h). Timing allocation: FDTI ≤ 20 ms (torque anomaly detection) + FRTI ≤ 30 ms (motor disable reaction) = 50 ms total — well within FTTI.
+- **Safe-state hold time (EOTI)**: Maintained until ECU power cycle or successful system reset with fault cleared.
 
 ### Functional Safety Requirements (SG-001)
 | FSR ID   | Statement                                                                                     | ASIL | Allocated To                 |
@@ -79,5 +79,5 @@ HE-003: EPS applies unintended high torque at low speed. ASIL-C.
 FSR-001 (ASIL-D) can be decomposed if two independent implementations exist:
 - Software torque monitor (ASIL-B(D)) — SWC with separate data path.
 - Hardware current limiter (ASIL-B(D)) — MCAL-level, no shared code with SW monitor.
-Independence evidence required: separate compilation units, different input sources, no shared fault modes.
+Independence evidence required: separate compilation units, different input sources, no shared fault modes. Decomposition is valid only with a Dependent Failure Analysis (DFA) per ISO 26262-9 §5 demonstrating freedom from common-cause and cascading failures; separate compilation units alone are not sufficient.
 ```

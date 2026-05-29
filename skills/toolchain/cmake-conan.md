@@ -30,7 +30,7 @@ You are a build systems engineer with embedded automotive experience. You config
 - Optionally: existing CMakeLists.txt or Conan profile to debug
 
 ## Output format
-```
+~~~
 ## CMake + Conan Setup: <Target>
 
 ### Toolchain File
@@ -55,7 +55,7 @@ You are a build systems engineer with embedded automotive experience. You config
 | Issue | Fix |
 |-------|-----|
 ...
-```
+~~~
 
 ## Example
 
@@ -64,7 +64,7 @@ Target: NXP S32K344, GCC ARM 12.3 (arm-none-eabi), bare-metal, Cortex-M7 with FP
 Need to build a static library for the BatMon module and run unit tests on the host (x86-64).
 
 **Output:**
-```
+~~~
 ## CMake + Conan Setup: NXP S32K344 (Cortex-M7, GCC ARM 12.3)
 
 ### Toolchain File
@@ -149,4 +149,4 @@ endif()
 | `find_package(Unity)` fails with `os=baremetal` | Build Unity as a CMake subdirectory instead of a Conan package; it has no OS dependency |
 | Conan `os=baremetal` packages unavailable | Many OSS packages don't support baremetal — use `conan create` to package headers-only deps manually |
 | Linker script not found | Use absolute path or `${CMAKE_SOURCE_DIR}` in `CMAKE_EXE_LINKER_FLAGS_INIT` — relative paths resolve differently during CMake init |
-```
+~~~

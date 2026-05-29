@@ -41,6 +41,9 @@
     "arxml",
     "functional-safety"
   ],
+  "scripts": {
+    "prepublishOnly": "node bin/validate.js"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18"

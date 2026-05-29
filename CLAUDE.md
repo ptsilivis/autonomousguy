@@ -84,7 +84,7 @@ The CLI counts `.md` files per subdirectory automatically — no registration st
 |---|---|---|
 | `workspace/` | codebase-analysis | First-run scan → writes `.autonomousguy/CODEBASE_MAP.md` |
 | `autosar/` | autosar-integration, swc-development, bsw-configuration, arxml-debugging, rte-generation-troubleshooting | AUTOSAR Classic end-to-end |
-| `code-quality/` | misra-review, misra-driven-development, code-review, naming-conventions | MISRA C:2012 audit and compliant development |
+| `code-quality/` | misra-review, misra-driven-development, code-review, naming-conventions | MISRA C:2025 audit and compliant development |
 | `architecture/` | component-design, uml-generation, interface-definition | SWC topology, UML (PlantUML/Mermaid), port interfaces |
 | `requirements/` | elicitation, refinement, traceability | EARS notation, defect detection, traceability matrix |
 | `safety/` | iso26262-asil, safety-goals | HARA, ASIL lookup, Safety Goals, FTTI, FSR derivation |
@@ -101,9 +101,10 @@ The CLI counts `.md` files per subdirectory automatically — no registration st
 ## Design decisions (locked)
 
 - **Skill format**: five-section Markdown with YAML frontmatter. Both are required — frontmatter for CLI, sections for AI consumption.
-- **Install pattern**: all tools use `.<tool>/skills/autonomousguy/` — no single-file concatenation for any tool.
+- **Install pattern (current)**: all tools use `.<tool>/skills/autonomousguy/` — no single-file concatenation for any tool. This is a staging layout; files are not auto-discovered by any tool in their installed form (no tool reads `.<tool>/skills/autonomousguy/` natively). Users invoke skills by manually pasting or referencing the file.
+- **Install pattern (v0.2 decision)**: add per-tool emitters — transform canonical `.md` on install into each tool's native format (`SKILL.md` dirs for Claude Code, `.mdc` for Cursor, `.prompt.md` for Copilot, etc.). This is the v0.2 headline feature. The "no special-casing for any tool" constraint from v0.1 is **superseded** by this decision.
 - **Dependency**: `@inquirer/prompts` for the interactive TUI. The "zero deps" constraint of the original prototype was dropped in favour of a usable multi-select CLI.
-- **No test suite**: skills are domain content, not executable code. Validation is by domain review, not automated testing.
+- **Skill validator**: `bin/validate.js` checks every `skills/**/*.md` for required frontmatter keys and the five required sections in order. Run automatically via `prepublishOnly`.
 - **Versioning**: single version in `package.json`; bump before every `npm publish`.
 
 ## What's next (v0.2 candidates)
@@ -111,4 +112,5 @@ The CLI counts `.md` files per subdirectory automatically — no registration st
 - GitHub repository setup (topics: autosar, misra, embedded, automotive, ai, iso26262)
 - `npm publish` to make `npx autonomousguy init` work publicly
 - A `skills-lock.json` at project level to track which autonomousguy version is installed (following the impeccable pattern)
+- **Per-tool emitters (HR-1)**: transform canonical `.md` into each tool's native format on install (Claude Code `SKILL.md` dirs, Cursor `.mdc`, Copilot `.prompt.md`, Gemini CLI commands, etc.)
 - Additional skills identified during design: `autosar/swc-migration`, `safety/fmea`, `testing/integration-test-plan`

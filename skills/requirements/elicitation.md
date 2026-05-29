@@ -106,3 +106,5 @@ You are a requirements engineer with expertise in embedded automotive systems an
 3. Which DTC event ID should be reported (requires DEM configuration)?
 4. Is this module safety-relevant (ASIL assignment needed if warning affects driver behavior)?
 ```
+
+> *Note: ASIL values in this example are illustrative for this skill only. The BatMon module carries different ASIL ratings in other autonomousguy skill examples.*

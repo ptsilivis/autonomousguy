@@ -29,7 +29,10 @@ function parseFrontmatter(filePath) {
     const sep = line.indexOf(':');
     if (sep === -1) continue;
     const key = line.slice(0, sep).trim();
-    const val = line.slice(sep + 1).trim().replace(/^['"]|['"]$/g, '');
+    let   val = line.slice(sep + 1).trim().replace(/^['"]|['"]$/g, '');
+    if (val.startsWith('[') && val.endsWith(']')) {
+      val = val.slice(1, -1).split(',').map(t => t.trim()).filter(Boolean);
+    }
     fm[key] = val;
   }
   return fm;

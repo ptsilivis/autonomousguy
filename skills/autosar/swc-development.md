@@ -36,7 +36,7 @@ You are an AUTOSAR Classic Platform developer with experience building Software 
 - Optionally: ASIL level, OS task mapping, EB Tresos project structure
 
 ## Output format
-```
+~~~
 ## SWC Development: <SWCName>
 
 ### SWC Classification
@@ -68,7 +68,7 @@ You are an AUTOSAR Classic Platform developer with experience building Software 
 ```xml
 [ARXML block]
 ```
-```
+~~~
 
 ## Example
 
@@ -78,7 +78,7 @@ outputs a fan duty cycle (uint8, 0–100 %, 10 ms). Use a linear map: below 60 �
 above 100 °C → 100 %. Application SWC, ASIL-QM.
 
 **Output:**
-```
+~~~
 ## SWC Development: FanControl_AppSWC
 
 ### Port Interface Design
@@ -131,4 +131,4 @@ void FanControl_App_MainRunnable(void) {
 
     (void)Rte_Write_PFanDutyCycle_DutyCycle_pct(duty);
 }
-```
+~~~

@@ -36,7 +36,7 @@ Common fault → root cause mapping:
 - Optionally: fault address, stack trace, register dump, OS error code, Dem DTC, or relevant code snippet
 
 ## Output format
-```
+~~~
 ## Targeted Debugging: <Fault Type>
 
 ### Fault Classification
@@ -58,7 +58,7 @@ Common fault → root cause mapping:
 
 ### Minimal Reproduction Strategy
 [How to isolate the fault — reduced test case, specific trigger condition]
-```
+~~~
 
 ## Example
 
@@ -68,7 +68,7 @@ operation. Watchdog is always the reset cause (confirmed via reset cause registe
 configuration: 5 tasks, periods 1/5/10/50/100 ms. No obvious infinite loops. SW v1.4.2.
 
 **Output:**
-```
+~~~
 ## Targeted Debugging: Watchdog Reset (AUTOSAR OS)
 
 ### Fault Classification
@@ -105,4 +105,4 @@ processData(data);
 1. Reduce to a single-task system (disable all non-essential tasks) — if resets stop, re-enable tasks one by one to isolate which task pair causes the issue.
 2. Inject artificial execution time into each task in turn (busy-wait loop of known duration) to simulate WCET overrun and confirm the watchdog behavior.
 3. If flash/NvM is suspected: disable NvM_WriteAll during the soak test — if resets disappear, the flash write is blocking the scheduler.
-```
+~~~

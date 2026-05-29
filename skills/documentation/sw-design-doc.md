@@ -57,9 +57,10 @@ A structured Markdown document with all sections below populated — no placehol
 Module: BatMon_AppSWC. Reads filtered battery voltage (uint16, 10 mV/LSB, 10 ms), compares
 to threshold, sets LowVoltageWarning_Active (boolean), and reports to Dem if threshold crossed.
 ASIL-QM. SW-REQ-BATMON-001 through 003.
+> *Note: ASIL-QM is illustrative for this skill. The BatMon example carries different ASIL ratings across autonomousguy skills.*
 
 **Output:**
-```markdown
+~~~markdown
 ## Software Design: BatMon_AppSWC
 
 ### 1. Module Overview
@@ -142,4 +143,4 @@ end
 | SW-REQ-BATMON-001 | `RBattVoltage` port + `BatMon_App_MainRunnable` read   |
 | SW-REQ-BATMON-002 | Threshold comparison + `g_BatMon_DebounceCount` logic  |
 | SW-REQ-BATMON-003 | `Dem_SetEventStatus()` call in `BatMon_App_MainRunnable`|
-```
+~~~

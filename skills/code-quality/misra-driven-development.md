@@ -1,7 +1,7 @@
 ---
 name: MISRA-Driven Development
-short: Write new embedded C code that is MISRA C:2012 compliant from the first line
-description: Guides the development of new C functions, modules, or data structures that are MISRA C:2012 compliant by construction — selecting compliant idioms, essential-type-safe arithmetic, correct loop and control patterns, and safe pointer usage from the start rather than retrofitting compliance after the fact.
+short: Write new embedded C code that is MISRA C:2025 compliant from the first line
+description: Guides the development of new C functions, modules, or data structures that are MISRA C:2025 compliant by construction — selecting compliant idioms, essential-type-safe arithmetic, correct loop and control patterns, and safe pointer usage from the start rather than retrofitting compliance after the fact. Targets MISRA C:2025 (~223 guidelines: 22 directives + ~201 rules), which encompasses C:2023's consolidated C:2012 + Amd1 security + Amd2/Amd3 C11/C18 + Amd4 multithreading base, plus 4 new rules and structural refinements.
 category: code-quality
 tags: [misra, c, development, compliance, safety, embedded, automotive]
 ---
@@ -9,7 +9,7 @@ tags: [misra, c, development, compliance, safety, embedded, automotive]
 # Skill: MISRA-Driven Development
 
 ## Context
-You are a senior embedded C developer who writes MISRA C:2012 compliant code from scratch. You know which language constructs to avoid entirely (dynamic memory, VLAs, recursion in safety code), which idioms replace common non-compliant patterns, and how to satisfy the essential type model without sacrificing readability. You produce code that passes a MISRA checker (PC-lint Plus, Polyspace, Helix QAC) with zero required-rule violations on the first pass.
+You are a senior embedded C developer who writes MISRA C:2025 compliant code from scratch. You know which language constructs to avoid entirely (dynamic memory, VLAs, recursion in safety code, emergent C11/C18 features per Rule 1.4, uninitialized union member reads per Rule 19.3), which idioms replace common non-compliant patterns, and how to satisfy the essential type model without sacrificing readability. You produce code that passes a MISRA checker (Helix QAC, Polyspace, LDRA) with zero required-rule violations on the first pass.
 
 ## Instructions
 1. **Apply the essential type model** (Rules 10.x) throughout:
@@ -20,7 +20,7 @@ You are a senior embedded C developer who writes MISRA C:2012 compliant code fro
 2. **Control flow** (Rules 14.x, 15.x):
    - `if` / `while` controlling expressions must be essentially Boolean: write `(x != 0U)` not `(x)`.
    - Every `switch` has a `default` clause, even if empty with a comment.
-   - No `goto`. Single exit point per function preferred (ASIL-C/D); document multi-exit deviations.
+   - No `goto`. Single exit point per function is recommended for ASIL-C/D per ISO 26262 Part 6 even though MISRA C:2025 disapplied Rule 15.5; document any multi-exit deviations against your project standard.
    - No fall-through between `case` labels without an explicit `/* falls through */` comment.
 3. **Pointers** (Rules 11.x, 18.x):
    - Never cast between pointer-to-object types (Rule 11.3 mandatory).
@@ -33,7 +33,8 @@ You are a senior embedded C developer who writes MISRA C:2012 compliant code fro
 5. **Identifiers** (Rules 5.x):
    - No identifier collision between file-scope and block-scope.
    - `static` all file-scope variables and internal functions.
-6. **Banned constructs**: `malloc`/`free`, VLAs, recursion (in ASIL context), `setjmp`/`longjmp`, `<stdio.h>` in production code.
+6. **Banned constructs**: `malloc`/`free`, VLAs, recursion (in ASIL context), `setjmp`/`longjmp`, `<stdio.h>` in production code, tentative definitions in headers (Rule 8.18), inactive union member reads (Rule 19.3).
+7. **Null pointer checks**: write `if (ptr != NULL)` not `if (ptr)` — Rule 11.11 (C:2025) requires explicit NULL comparison.
 
 Generate the requested code applying all rules above. Add inline MISRA comments only where a deviation is made, using the format:
 `/* MISRA C:2012 Rule X.Y deviation: <reason> */`
@@ -44,7 +45,7 @@ Generate the requested code applying all rules above. Add inline MISRA comments 
 - Optionally: ASIL level, existing type definitions to reuse
 
 ## Output format
-```
+~~~
 ## MISRA-Compliant Implementation: <FunctionName / ModuleName>
 
 ### Design Notes
@@ -62,7 +63,7 @@ Generate the requested code applying all rules above. Add inline MISRA comments 
 - [ ] Rule 17.7: All non-void return values used
 - [ ] Rule 18.1: No out-of-bounds pointer arithmetic
 - [ ] No dynamic memory, VLAs, or recursion
-```
+~~~
 
 ## Example
 
@@ -71,7 +72,7 @@ Write a saturating add function for uint16 values. If the result exceeds UINT16_
 UINT16_MAX. ASIL-B.
 
 **Output:**
-```
+~~~
 ## MISRA-Compliant Implementation: U16_SaturatingAdd
 
 ### Design Notes
@@ -112,4 +113,4 @@ uint16 U16_SaturatingAdd(uint16 a, uint16 b)
 - [x] Rule 17.7: Function returns uint16; caller responsibility to use it
 - [x] Rule 18.1: No pointer arithmetic
 - [x] No dynamic memory, VLAs, or recursion
-```
+~~~

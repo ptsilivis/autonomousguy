@@ -31,7 +31,7 @@ You are an embedded systems architect proficient in UML 2.5 notation, producing 
 - Optionally: specify diagram type(s) and preferred notation (PlantUML / Mermaid)
 
 ## Output format
-```
+~~~
 ## UML Diagram: <Title>
 
 ### Description
@@ -48,7 +48,7 @@ You are an embedded systems architect proficient in UML 2.5 notation, producing 
 ```mermaid
 ...
 ```
-```
+~~~
 
 ## Example
 
@@ -58,7 +58,7 @@ a switch input (UP/DOWN/IDLE), drives a motor via IoHwAb, and has an anti-pinch 
 that stops the window if force exceeds a threshold.
 
 **Output:**
-```
+~~~
 ## UML Diagram: Window Lift Controller
 
 ### Description
@@ -123,4 +123,4 @@ stateDiagram-v2
       Anti-pinch must activate
       within 500 ms of detection
     end note
-```
+~~~

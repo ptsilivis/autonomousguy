@@ -29,7 +29,7 @@ You are an AUTOSAR toolchain expert who has debugged hundreds of ARXML consisten
 - Optionally: the SWC short-name and port name involved in the error
 
 ## Output format
-```
+~~~
 ## ARXML Debug Report
 
 ### Error Classification
@@ -55,7 +55,7 @@ You are an AUTOSAR toolchain expert who has debugged hundreds of ARXML consisten
 
 ### Prevention
 [Rule or process step to avoid this class of error]
-```
+~~~
 
 ## Example
 
@@ -69,7 +69,7 @@ You are an AUTOSAR toolchain expert who has debugged hundreds of ARXML consisten
 ```
 
 **Output:**
-```
+~~~
 ## ARXML Debug Report
 
 ### Error Classification
@@ -115,4 +115,4 @@ Added the missing `R-PORT-PROTOTYPE` named `RBattVoltage` to `BatMon_AppSWC`.
 After adding any DataReceivedEvent or DataSendCompletedEvent to an InternalBehavior,
 run EB Tresos "Check Consistency" immediately — it catches missing port references before
 they propagate into the RTE generator phase.
-```
+~~~

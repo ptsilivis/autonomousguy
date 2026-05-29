@@ -69,7 +69,7 @@ uint16 BatMon_ComputeAverage(uint16 v1_mV, uint16 v2_mV) {
 Type: uint16 (0–65535). Physical meaning: battery voltage in mV. Useful range: 0–20000 mV.
 
 **Output:**
-```
+~~~
 ## Boundary Value Analysis: BatMon_ComputeAverage
 
 ### Parameter Table
@@ -109,4 +109,4 @@ uint16 BatMon_ComputeAverage(uint16 v1_mV, uint16 v2_mV) {
 }
 ```
 This eliminates uint16 overflow; the division result is always ≤ 32767 for valid inputs.
-```
+~~~
