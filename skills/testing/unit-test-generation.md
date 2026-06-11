@@ -63,8 +63,6 @@ You are an embedded software test engineer experienced in writing unit tests for
 
 ## Example
 
-> *Note: ASIL-B is illustrative for this skill. The BatMon example carries different ASIL ratings across autonomousguy skills.*
-
 **Input:**
 ```c
 /* ASIL-B */
@@ -120,12 +118,12 @@ Std_ReturnType BatMon_CheckVoltage(uint16 voltage_mV, uint8 debounce_cnt) {
 
 ### Stub Declarations
 ```c
-static boolean g_stub_LowVoltageWarning;
-static uint32  g_stub_LowVoltageWarning_callCount;
+static boolean s_stub_LowVoltageWarning;
+static uint32  s_stub_LowVoltageWarning_callCount;
 
 Std_ReturnType Rte_Write_LowVoltageWarning_Active(boolean value) {
-    g_stub_LowVoltageWarning = value;
-    g_stub_LowVoltageWarning_callCount++;
+    s_stub_LowVoltageWarning = value;
+    s_stub_LowVoltageWarning_callCount++;
     return RTE_E_OK;
 }
 ```

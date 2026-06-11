@@ -93,7 +93,7 @@ Module: BatMon_AppSWC. Going from v1.3.0 to v1.4.0. Changes:
   Re-verify: TC-BATMON-002.
 
 ### Safety & Compliance
-- [SAFETY] [LOW] MISRA C:2012 Rule 14.4 fix: controlling expression `if (warningActive)`
+- [SAFETY] [LOW] MISRA C:2025 Rule 14.4 fix: controlling expression `if (warningActive)`
   replaced with `if (warningActive == TRUE)`. No behavioral change.
   Re-verify: not required (comment-only semantic change confirmed by code review).
 

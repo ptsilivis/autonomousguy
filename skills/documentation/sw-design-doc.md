@@ -56,8 +56,7 @@ A structured Markdown document with all sections below populated — no placehol
 **Input:**
 Module: BatMon_AppSWC. Reads filtered battery voltage (uint16, 10 mV/LSB, 10 ms), compares
 to threshold, sets LowVoltageWarning_Active (boolean), and reports to Dem if threshold crossed.
-ASIL-QM. SW-REQ-BATMON-001 through 003.
-> *Note: ASIL-QM is illustrative for this skill. The BatMon example carries different ASIL ratings across autonomousguy skills.*
+ASIL-B (inherited from SG-BATMON-01). SW-REQ-BATMON-001 through 003.
 
 **Output:**
 ~~~markdown
@@ -85,8 +84,8 @@ direct hardware access; all sensor data arrives via the AUTOSAR RTE.
 #### 2.3 Internal Data
 | Variable                  | Type    | Init Value | Description                              |
 |--------------------------|---------|-----------|------------------------------------------|
-| `g_BatMon_DebounceCount` | uint8   | 0U        | Consecutive cycles below threshold       |
-| `g_BatMon_WarningActive` | boolean | FALSE     | Current warning state                    |
+| `s_BatMon_DebounceCount` | uint8   | 0U        | Consecutive cycles below threshold       |
+| `s_BatMon_WarningActive` | boolean | FALSE     | Current warning state                    |
 
 #### 2.4 BSW Dependencies
 | BSW Module | API Called               | Purpose                    |
@@ -127,13 +126,13 @@ end
 
 ### 4. Error Handling
 - `Rte_Read` returns `RTE_E_TIMEOUT` if the sender has not written within AliveTimeout: `BatMon_App_MainRunnable` treats the last valid value as stale and increments an error counter. After 3 consecutive stale reads, it sets `LowVoltageWarning_Active = TRUE` as a safe-side default.
-- `Dem_SetEventStatus` return value is checked; `E_NOT_OK` is logged to a module-local error counter (no further action for QM).
+- `Dem_SetEventStatus` return value is checked; `E_NOT_OK` increments a module-local error counter and triggers a second-attempt retry on the next 10 ms cycle. Persistent `E_NOT_OK` over 5 consecutive cycles is itself reported as a secondary DTC (`DEM_BATMON_DIAG_FAILURE`) to preserve the safety case for SG-BATMON-01.
 
 ### 5. Memory Section Mapping
 | Section                              | Content                         |
 |-------------------------------------|---------------------------------|
-| `BATMON_START_SEC_VAR_INIT_8`        | `g_BatMon_DebounceCount`        |
-| `BATMON_START_SEC_VAR_INIT_BOOLEAN`  | `g_BatMon_WarningActive`        |
+| `BATMON_START_SEC_VAR_INIT_8`        | `s_BatMon_DebounceCount`        |
+| `BATMON_START_SEC_VAR_INIT_BOOLEAN`  | `s_BatMon_WarningActive`        |
 | `BATMON_START_SEC_CONST_16`          | Threshold and debounce constants|
 | `BATMON_START_SEC_CODE`              | All runnable implementations    |
 
@@ -141,6 +140,6 @@ end
 | SW-REQ ID         | Design Element Covering It                               |
 |-------------------|--------------------------------------------------------|
 | SW-REQ-BATMON-001 | `RBattVoltage` port + `BatMon_App_MainRunnable` read   |
-| SW-REQ-BATMON-002 | Threshold comparison + `g_BatMon_DebounceCount` logic  |
+| SW-REQ-BATMON-002 | Threshold comparison + `s_BatMon_DebounceCount` logic  |
 | SW-REQ-BATMON-003 | `Dem_SetEventStatus()` call in `BatMon_App_MainRunnable`|
 ~~~

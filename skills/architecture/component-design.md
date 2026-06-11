@@ -88,7 +88,7 @@ ASIL-B. No RTOS task budget concern.
 |-------------------------------|-------------------|------|----------------------------------------|
 | CoolantTemp_SensorActuatorSWC | Sensor/Actuator   | B    | Wraps IoHwAb ADC read                  |
 | CoolantTemp_AppSWC            | Application       | B    | Algorithm, no hardware access          |
-| CoolantTemp_DiagServiceSWC    | Service           | QM  | Wraps Dem API; QM sufficient (ASIL decomp) |
+| CoolantTemp_DiagServiceSWC    | Service           | B    | Wraps Dem_SetEventStatus for an ASIL-B fault — inherits safety relevance (no decomposition claimed) |
 
 ### Port Interface Specification
 #### CoolantTemp_SensorActuatorSWC
@@ -105,9 +105,51 @@ ASIL-B. No RTOS task budget concern.
 | RDemReport        | Required | C/S  | Dem_SetEventIf      | SetEventStatus    | On demand |
 
 ### Runnable Specification
-| SWC                           | Runnable                     | Activation  | Period | ExclusiveArea |
-|-------------------------------|------------------------------|-------------|--------|--------------|
-| CoolantTemp_SensorActuatorSWC | CoolantSensor_MainRunnable   | TimingEvent | 10 ms  | —            |
-| CoolantTemp_AppSWC            | CoolantApp_Init              | InitEvent   | —      | —            |
-| CoolantTemp_AppSWC            | CoolantApp_MainRunnable      | TimingEvent | 10 ms  | EA_CoolantState |
+| SWC                           | Runnable                     | Activation         | Period    | ExclusiveArea   |
+|-------------------------------|------------------------------|--------------------|-----------|-----------------|
+| CoolantTemp_SensorActuatorSWC | CoolantSensor_Init           | InitEvent          | —         | —               |
+| CoolantTemp_SensorActuatorSWC | CoolantSensor_MainRunnable   | TimingEvent        | 10 ms     | —               |
+| CoolantTemp_AppSWC            | CoolantApp_Init              | InitEvent          | —         | —               |
+| CoolantTemp_AppSWC            | CoolantApp_MainRunnable      | TimingEvent        | 10 ms     | EA_CoolantState |
+| CoolantTemp_DiagServiceSWC    | CoolantDiag_Init             | InitEvent          | —         | —               |
+| CoolantTemp_DiagServiceSWC    | CoolantDiag_ReportRunnable   | DataReceivedEvent  | On change | —               |
+
+### Composition Diagram (PlantUML)
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+
+[CoolantTemp_SensorActuatorSWC] as SA
+[CoolantTemp_AppSWC] as App
+[CoolantTemp_DiagServiceSWC] as Diag
+[IoHwAb] as IoHwAb
+[Dem] as Dem
+[Com] as Com
+
+IoHwAb -down-> SA  : ADC sample
+SA -right-> App    : RawVoltage_mV (S/R, 10 ms)
+App -right-> Diag  : OverTempActive (S/R, on change)
+App -down-> Com    : Temperature_degC (S/R, 10 ms)
+Diag -down-> Dem   : Dem_SetEventStatus (C/S)
+@enduml
 ```
+
+### Integration Notes
+- **ASIL:** All three SWCs reside in the ASIL-B partition. The Diag Service SWC inherits
+  ASIL-B from the safety-related fault it reports; no ASIL decomposition is claimed here.
+  If decomposition to QM is desired in a later iteration, perform a Dependent Failure
+  Analysis (DFA) per ISO 26262-9 and document the freedom-from-interference argument.
+- **Memory section:** Place all three SWCs in the `.text.asilB` and `.data.asilB` sections
+  per the project linker script. The OS-Application hosting them must be configured as
+  TRUSTED with memory-protection enabled.
+- **OS task mapping:** The two 10 ms runnables (`CoolantSensor_MainRunnable`,
+  `CoolantApp_MainRunnable`) should share one 10 ms OS task to minimise context-switch
+  overhead and preserve data-flow ordering (sensor before app). Place
+  `CoolantDiag_ReportRunnable` on a lower-priority event-triggered task.
+- **Timing budget:** End-to-end FTTI from sensor read to DTC report must be < 100 ms per
+  Safety Goal SG-COOLANT-01. Worst-case path: 10 ms sensor task + 10 ms app task +
+  one 10 ms diag activation latency = 30 ms; margin acceptable.
+- **ExclusiveArea EA_CoolantState** protects the filter state inside
+  `CoolantApp_MainRunnable` from any future diagnostic read access; reserved now to avoid
+  a later API break.
+~~~

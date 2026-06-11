@@ -38,10 +38,13 @@ You are a senior embedded automotive engineer who has resolved hundreds of field
 ### Symptom Classification
 [Type and one-line summary]
 
-### Affected Software Elements
+### Affected Elements
 | Element | Layer | Why Suspected |
 |---------|-------|--------------|
 ...
+
+### Safety Impact
+[Early read on safety relevance — fill in once Affected Elements is mapped: which (if any) of the suspected elements are ASIL-tagged, which safety goal they support, and whether the symptom could itself violate that safety goal]
 
 ### Hypotheses
 | # | Hypothesis | Likelihood | Evidence | How to Confirm |
@@ -55,8 +58,8 @@ You are a senior embedded automotive engineer who has resolved hundreds of field
 1. [Step — what to do and what result confirms/refutes which hypothesis]
 2. ...
 
-### Risk Note
-[Any safety implication if the root cause is confirmed — e.g., ASIL-relevant path]
+### Safety Impact
+[Any safety implication if a hypothesis is confirmed — affected safety goal / ASIL path, and whether an ISO 26262 §8.4 safety impact assessment is required before release]
 ```
 
 ## Example
@@ -74,7 +77,7 @@ Customer complaint. Frequency: intermittent."
 Functional failure — transient incorrect output value on instrument cluster SOC display.
 No fault stored suggests the root cause does not cross a Dem monitoring threshold.
 
-### Affected Software Elements
+### Affected Elements
 | Element               | Layer       | Why Suspected                                          |
 |-----------------------|-------------|--------------------------------------------------------|
 | SOC_EstimatorSWC      | Application | Computes SOC; a transient wrong output is the symptom  |
@@ -103,6 +106,6 @@ No fault stored suggests the root cause does not cross a Dem monitoring threshol
 3. Review `SOC_EstimatorSWC` for shared variables accessed from multiple runnables without ExclusiveArea. If found, add protection and retest.
 4. Check NvM write timing: if NvM_WriteAll is called during driving (not just key-off), audit the NvM block callback to ensure RAM mirror is not cleared before write completes.
 
-### Risk Note
-If Hypothesis 2 (race condition) is confirmed and the SOC signal feeds a safety-relevant function (e.g., contactor control or ASIL-B charge limit), this becomes a safety defect requiring ISO 26262 impact analysis before release.
+### Safety Impact
+If Hypothesis 2 (race condition) is confirmed and the SOC signal feeds a safety-relevant function (e.g., contactor control or ASIL-B charge limit), this becomes a safety defect requiring an ISO 26262-8 §8.4 safety impact assessment before release.
 ```

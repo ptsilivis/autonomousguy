@@ -1,7 +1,7 @@
 ---
 name: AUTOSAR SWC Development
 short: Write a new AUTOSAR Classic SWC from scratch — ports, runnables, ARXML, and RTE APIs
-description: Guides the full development of a new AUTOSAR Software Component: selects the SWC type, designs port interfaces, generates the internal behavior (runnables, ExclusiveAreas), produces skeleton C source with correct RTE API calls, and outputs an ARXML excerpt ready for import into EB Tresos or DaVinci Developer.
+description: Guides the full development of a new AUTOSAR Software Component -> selects the SWC type, designs port interfaces, generates the internal behavior (runnables, ExclusiveAreas), produces skeleton C source with correct RTE API calls, and outputs an ARXML excerpt ready for import into EB Tresos or DaVinci Developer.
 category: autosar
 tags: [autosar, swc, development, rte, arxml, eb-tresos, davinci]
 ---
@@ -9,7 +9,7 @@ tags: [autosar, swc, development, rte, arxml, eb-tresos, davinci]
 # Skill: AUTOSAR SWC Development
 
 ## Context
-You are an AUTOSAR Classic Platform developer with experience building Software Components from requirements through ARXML configuration and C implementation. You produce production-ready SWC skeletons with correct RTE API usage, AUTOSAR-compliant data types, and ARXML excerpts importable into EB Tresos or Vector DaVinci Developer. You apply MISRA C:2012 and AUTOSAR naming conventions from the first line.
+You are an AUTOSAR Classic Platform developer with experience building Software Components from requirements through ARXML configuration and C implementation. You produce production-ready SWC skeletons with correct RTE API usage, AUTOSAR-compliant data types, and ARXML excerpts importable into EB Tresos or Vector DaVinci Developer. You apply MISRA C:2025 and AUTOSAR naming conventions from the first line.
 
 ## Instructions
 1. **Determine SWC type** from the feature description:
@@ -81,11 +81,27 @@ above 100 °C → 100 %. Application SWC, ASIL-QM.
 ~~~
 ## SWC Development: FanControl_AppSWC
 
+### SWC Classification
+**Type:** Application SWC.
+**Rationale:** Pure algorithm — reads a temperature signal, applies a piecewise-linear map,
+writes a duty-cycle signal. No hardware access, no BSW service calls. Hardware abstraction
+(ADC → temperature conversion) is owned by an upstream Sensor/Actuator SWC; the PWM driver
+is owned by a downstream Sensor/Actuator SWC.
+
 ### Port Interface Design
 | Port Name       | Dir | Type | Interface       | DataElement    | AUTOSAR Type | InitValue |
 |----------------|-----|------|-----------------|---------------|-------------|-----------|
 | RCoolantTemp   | R   | S/R  | CoolantTempIf   | Temp_degC10   | uint16      | 0         |
 | PFanDutyCycle  | P   | S/R  | FanDutyCycleIf  | DutyCycle_pct | uint8       | 0         |
+
+### Runnable Specification
+| Runnable                          | Activation  | Period | ExclusiveArea |
+|-----------------------------------|-------------|--------|---------------|
+| FanControl_App_Init               | InitEvent   | —      | —             |
+| FanControl_App_MainRunnable       | TimingEvent | 10 ms  | —             |
+
+No ExclusiveArea required — no shared mutable state between runnables; all state is local
+to MainRunnable.
 
 ### C Skeleton
 
@@ -99,8 +115,8 @@ above 100 °C → 100 %. Application SWC, ASIL-QM.
 extern void FanControl_App_Init(void);
 extern void FanControl_App_MainRunnable(void);
 
-#define FANCTRL_TEMP_LOW_DEGC10  (600U)   /* 60.0 °C */
-#define FANCTRL_TEMP_HIGH_DEGC10 (1000U)  /* 100.0 °C */
+#define FANCTRL_TEMP_LOW_DEGC10  (600U)   /* 60.0 degC */
+#define FANCTRL_TEMP_HIGH_DEGC10 (1000U)  /* 100.0 degC */
 
 #endif /* FANCONTROL_APP_H */
 ```
@@ -109,11 +125,13 @@ extern void FanControl_App_MainRunnable(void);
 ```c
 #include "FanControl_App.h"
 
-void FanControl_App_Init(void) {
+void FanControl_App_Init(void)
+{
     (void)Rte_Write_PFanDutyCycle_DutyCycle_pct(0U);
 }
 
-void FanControl_App_MainRunnable(void) {
+void FanControl_App_MainRunnable(void)
+{
     uint16 temp;
     uint8  duty;
 
@@ -131,4 +149,56 @@ void FanControl_App_MainRunnable(void) {
 
     (void)Rte_Write_PFanDutyCycle_DutyCycle_pct(duty);
 }
+```
+
+### ARXML Excerpt
+```xml
+<APPLICATION-SW-COMPONENT-TYPE>
+  <SHORT-NAME>FanControl_AppSWC</SHORT-NAME>
+  <PORTS>
+    <R-PORT-PROTOTYPE>
+      <SHORT-NAME>RCoolantTemp</SHORT-NAME>
+      <REQUIRED-INTERFACE-TREF DEST="SENDER-RECEIVER-INTERFACE">
+        /Interfaces/CoolantTempIf
+      </REQUIRED-INTERFACE-TREF>
+    </R-PORT-PROTOTYPE>
+    <P-PORT-PROTOTYPE>
+      <SHORT-NAME>PFanDutyCycle</SHORT-NAME>
+      <PROVIDED-INTERFACE-TREF DEST="SENDER-RECEIVER-INTERFACE">
+        /Interfaces/FanDutyCycleIf
+      </PROVIDED-INTERFACE-TREF>
+    </P-PORT-PROTOTYPE>
+  </PORTS>
+  <INTERNAL-BEHAVIORS>
+    <SWC-INTERNAL-BEHAVIOR>
+      <SHORT-NAME>FanControl_AppSWC_IB</SHORT-NAME>
+      <EVENTS>
+        <INIT-EVENT>
+          <SHORT-NAME>InitEvt</SHORT-NAME>
+          <START-ON-EVENT-REF DEST="RUNNABLE-ENTITY">
+            .../FanControl_App_Init
+          </START-ON-EVENT-REF>
+        </INIT-EVENT>
+        <TIMING-EVENT>
+          <SHORT-NAME>MainEvt_10ms</SHORT-NAME>
+          <START-ON-EVENT-REF DEST="RUNNABLE-ENTITY">
+            .../FanControl_App_MainRunnable
+          </START-ON-EVENT-REF>
+          <PERIOD>0.01</PERIOD>
+        </TIMING-EVENT>
+      </EVENTS>
+      <RUNNABLES>
+        <RUNNABLE-ENTITY>
+          <SHORT-NAME>FanControl_App_Init</SHORT-NAME>
+          <CAN-BE-INVOKED-CONCURRENTLY>false</CAN-BE-INVOKED-CONCURRENTLY>
+        </RUNNABLE-ENTITY>
+        <RUNNABLE-ENTITY>
+          <SHORT-NAME>FanControl_App_MainRunnable</SHORT-NAME>
+          <CAN-BE-INVOKED-CONCURRENTLY>false</CAN-BE-INVOKED-CONCURRENTLY>
+        </RUNNABLE-ENTITY>
+      </RUNNABLES>
+    </SWC-INTERNAL-BEHAVIOR>
+  </INTERNAL-BEHAVIORS>
+</APPLICATION-SW-COMPONENT-TYPE>
+```
 ~~~

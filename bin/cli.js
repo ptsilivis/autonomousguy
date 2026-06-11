@@ -66,20 +66,28 @@ function loadSkillCategories(skillsDir) {
 // Tool install-path registry
 // ---------------------------------------------------------------------------
 const TOOLS = [
-  { name: 'Claude Code',    dir: '.claude'    },
-  { name: 'GitHub Copilot', dir: '.github'    },
-  { name: 'Cursor',         dir: '.cursor'    },
-  { name: 'Gemini CLI',     dir: '.gemini'    },
-  { name: 'ChatGPT Codex',  dir: '.agents'    },
-  { name: 'OpenCode',       dir: '.opencode'  },
-  { name: 'JetBrains AI',   dir: '.idea'      },
-  { name: 'General Agent',  dir: '.autonomousguy' },
+  { name: 'Claude Code',    dir: '.claude',        skillsSubdir: 'commands' },
+  { name: 'GitHub Copilot', dir: '.github',        skillsSubdir: 'skills'   },
+  { name: 'Cursor',         dir: '.cursor',        skillsSubdir: 'skills'   },
+  { name: 'Gemini CLI',     dir: '.gemini',        skillsSubdir: 'skills'   },
+  { name: 'ChatGPT Codex',  dir: '.agents',        skillsSubdir: 'skills'   },
+  { name: 'OpenCode',       dir: '.opencode',      skillsSubdir: 'skills'   },
+  { name: 'JetBrains AI',   dir: '.idea',          skillsSubdir: 'skills'   },
+  { name: 'General Agent',  dir: '.autonomousguy', skillsSubdir: 'skills'   },
 ];
 
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 async function main() {
+  if (!process.stdin.isTTY) {
+    console.error(
+      '\nError: autonomousguy init requires an interactive terminal.\n' +
+      'Run this command directly in your terminal, not through a pipe or script.\n'
+    );
+    process.exit(1);
+  }
+
   // Lazy-load @inquirer/prompts after dependency check
   let prompts;
   try {
@@ -168,7 +176,7 @@ async function main() {
   let copiedTotal = 0;
 
   for (const tool of selectedTools) {
-    const destBase = path.join(baseDir, tool.dir, 'skills', 'autonomousguy');
+    const destBase = path.join(baseDir, tool.dir, tool.skillsSubdir, 'autonomousguy');
     for (const cat of selectedCategories) {
       const srcCat  = path.join(skillsDir, cat.category);
       const destCat = path.join(destBase, cat.category);
@@ -179,16 +187,24 @@ async function main() {
       }
     }
     const rel = scope === 'global'
-      ? path.join('~', tool.dir, 'skills', 'autonomousguy')
-      : path.join(tool.dir, 'skills', 'autonomousguy');
-    console.log(`  ✓ ${tool.name.padEnd(18)} → ${rel}`);
+      ? path.join('~', tool.dir, tool.skillsSubdir, 'autonomousguy')
+      : path.join(tool.dir, tool.skillsSubdir, 'autonomousguy');
+    const hint = tool.skillsSubdir === 'commands' ? '  (invoke as /autonomousguy:<skill>)' : '';
+    console.log(`  ✓ ${tool.name.padEnd(18)} → ${rel}${hint}`);
   }
 
   // 5. Summary
   const skillCount = selectedCategories.reduce((n, c) => n + c.skills.length, 0);
   console.log(`\nInstalled ${skillCount} skills across ${selectedTools.length} tool(s).`);
-  console.log('\nTo use a skill: paste its contents into your AI tool of choice,');
-  console.log('or invoke it by name if your tool supports skill discovery.\n');
+
+  const hasClaudeCode = selectedTools.some(t => t.name === 'Claude Code');
+  if (hasClaudeCode) {
+    console.log('\nClaude Code: type /autonomousguy:<skill-name> to invoke any skill.');
+    console.log('Example: /autonomousguy:misra-review\n');
+  }
+  if (selectedTools.some(t => t.skillsSubdir === 'skills')) {
+    console.log('Other tools: paste the skill file contents into your AI tool of choice.\n');
+  }
 
   if (selectedCategories.some(c => c.category === 'workspace')) {
     console.log('Tip: run the [codebase-analysis] skill first in a new project to');

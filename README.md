@@ -7,7 +7,7 @@
 
 **AI skills for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development.**
 
-**autonomousguy** is a library of 29 domain-accurate AI prompt files (_skills_) covering the full ECU software lifecycle. Use it with Claude Code, GitHub Copilot, Cursor, Gemini CLI, or any AI tool to get consistent, expert-level assistance on AUTOSAR integration, MISRA C:2012 compliance, ISO 26262 safety analysis, requirements engineering, testing, documentation, toolchain setup, debugging, and change management.
+**autonomousguy** is a library of 30 domain-accurate AI prompt files (_skills_) covering the full ECU software lifecycle. Use it with Claude Code, GitHub Copilot, Cursor, Gemini CLI, or any AI tool to get consistent, expert-level assistance on AUTOSAR integration, MISRA C:2025 compliance, ISO 26262 safety analysis, requirements engineering, testing, documentation, toolchain setup, debugging, and change management.
 
 Install once. Works with any AI tool. No lock-in.
 
@@ -33,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/ptsilivis/autonomousguy/master/inst
 irm https://raw.githubusercontent.com/ptsilivis/autonomousguy/master/install.ps1 | iex
 ```
 
-The installer asks three questions: **scope** (local project or global), **tool(s)** (see supported tools below), and **skills** (all 29 or select by category). Skills land at `<base>/<tool-dir>/skills/autonomousguy/<category>/<skill>.md`.
+The installer asks three questions: **scope** (local project or global), **tool(s)** (see supported tools below), and **skills** (all 30 or select by category). Skills land at `<base>/<tool-dir>/skills/autonomousguy/<category>/<skill>.md` (or `.claude/commands/autonomousguy/...` for Claude Code, so skills are invokable as `/autonomousguy:<skill-name>`).
 
 ---
 
@@ -54,11 +54,12 @@ Start with `workspace/codebase-analysis` on any new project — it writes `.auto
 | `bsw-configuration` | Configures BSW modules (Com, Dem, NvM, Dcm, MemIf, Fee) from functional requirements. |
 | `arxml-debugging` | Diagnoses ARXML schema violations, missing references, and toolchain import errors. |
 | `rte-generation-troubleshooting` | Resolves RTE generator failures — unresolved ports, conflicting timing, mode-manager conflicts. |
+| `com-stack-debugging` | Traces a missing or wrong CAN signal through PduR, Com, CanIf, and CanDrv to its root cause. |
 
 ### `code-quality` — MISRA & Code Review
 | Skill | What it does |
 |---|---|
-| `misra-review` | MISRA C:2012 audit: violations by rule ID, severity, and location, with compliant rewrites. |
+| `misra-review` | MISRA C:2025 audit: violations by rule ID, severity, and location, with compliant rewrites. |
 | `misra-driven-development` | Generates new code that is compliant-by-construction across memory, arithmetic, and control flow. |
 | `code-review` | Embedded C review: correctness, ISR safety, stack usage, shared-resource access, AUTOSAR guidelines. |
 | `naming-conventions` | Audits identifiers against AUTOSAR and project-specific conventions; produces a rename map. |
@@ -133,7 +134,7 @@ Start with `workspace/codebase-analysis` on any new project — it writes `.auto
 
 | Tool | Skills installed at |
 |---|---|
-| Claude Code | `.claude/skills/autonomousguy/` |
+| Claude Code | `.claude/commands/autonomousguy/` — invokable as `/autonomousguy:<skill>` |
 | GitHub Copilot | `.github/skills/autonomousguy/` |
 | Cursor | `.cursor/skills/autonomousguy/` |
 | Gemini CLI | `.gemini/skills/autonomousguy/` |
@@ -180,6 +181,26 @@ git clone https://github.com/ptsilivis/autonomousguy.git
 cd autonomousguy && npm install
 node bin/cli.js   # run the installer locally
 ```
+
+---
+
+## Standards & licensing notice
+
+The skills in this library reference and operate on two copyrighted standards:
+
+- **MISRA C:2025** — © The MISRA Consortium Ltd. Sold per-seat; not redistributable.
+- **ISO 26262:2018** (all parts) — © ISO. Sold per-part; not redistributable.
+
+This library cites rule and clause **identifiers** (e.g., "MISRA C:2025 Rule 11.3",
+"ISO 26262-3:2018 §6.4.3.5 Table 4") and paraphrases their intent in our own words. It does
+**not** reproduce the rule text, the standards' normative wording, the rationale or
+amplification sections, the examples from the standards, or the full ASIL determination
+table. To apply these skills in a real project you (or your organisation) must hold a
+properly licensed copy of each standard — the skills are an operational aid, not a
+substitute for the standard itself.
+
+If you spot any content in this library that appears to reproduce normative text from
+either standard rather than paraphrasing it, open an issue and we will rewrite it.
 
 ---
 

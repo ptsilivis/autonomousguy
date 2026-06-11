@@ -40,8 +40,8 @@ You are a senior embedded automotive software engineer reviewing an incoming cha
 |---------|------|--------------|-----------|
 ...
 
-### ASIL Impact Assessment
-[None / Affected safety goal or FSR, with required actions]
+### Safety Impact
+[None / Affected safety goal or FSR, with required actions per ISO 26262-8 §8.4]
 
 ### Implementation Plan
 | # | Task | Owner Hint | Complexity | Depends On |
@@ -68,8 +68,9 @@ Reason: field feedback — too many false warnings in cold weather. Target: SW v
 ## Change Request Analysis: CR-0088 — Lower Low-Voltage Warning Threshold
 
 ### Change Classification
-Calibration/functional change. ASIL impact: assess (threshold is safety-adjacent — low voltage
-warning feeds instrument cluster and may feed a safe-state decision). Scope: localized to BatMon.
+Calibration/functional change. ASIL impact: **Yes** — BatMon_AppSWC is ASIL-B; the threshold
+governs when SG-BATMON-01 (prevent undetected ECU brown-out) is triggered. Scope: localized to
+BatMon, but with safety-case impact.
 
 ### Affected Elements
 | Element                       | Type           | Change Needed                              | Complexity |
@@ -80,12 +81,14 @@ warning feeds instrument cluster and may feed a safe-state decision). Scope: loc
 | BatMon calibration data sheet | Documentation  | Update nominal value                       | S         |
 | HARA / safety goal check      | Safety         | Verify new threshold does not violate SG   | M         |
 
-### ASIL Impact Assessment
-SW-REQ-BATMON-002 carries ASIL-QM, but the downstream consumer of `LowVoltageWarning_Active`
-must be checked. If any ASIL-B or higher SWC reacts to this signal, the threshold change
-requires a safety impact analysis confirming the new value does not compromise the safety goal
-"battery voltage shall not fall below safe operating level without driver warning."
-Action: review signal consumers in `CODEBASE_MAP.md` before implementing.
+### Safety Impact
+SW-REQ-BATMON-002 carries ASIL-B, inherited from SG-BATMON-01 ("battery voltage shall not fall
+below safe operating level without driver warning"). Lowering the threshold from 11.5 V to 11.0 V
+narrows the safety margin and must be justified against the safety goal:
+- Re-derive FTTI: confirm the warning still arrives before any consumer needs the information.
+- Confirm 11.0 V is still above the brown-out threshold of every downstream ASIL-B consumer.
+- Update the safety case to record the threshold change and its rationale (per ISO 26262-8 §8.4).
+- Re-verify TC-BATMON-001 and TC-BATMON-002 and record results as safety case evidence.
 
 ### Implementation Plan
 | # | Task                                                         | Owner Hint   | Complexity | Depends On |
@@ -105,6 +108,10 @@ Action: review signal consumers in `CODEBASE_MAP.md` before implementing.
 | TC-BATMON-004 | Rerun  | Regression — quiescent current unaffected but confirm |
 
 ### Integration Risks
-- If `LowVoltageWarning_Active` is consumed by an ASIL-B SWC, a formal safety impact analysis (per ISO 26262-8 §8.4) is required before the change can be released.
-- Cold-weather validation: the new 11.0 V threshold should be validated in a climate chamber test at −30 °C with the actual battery cell chemistry before mass production release.
+- Safety case update is required before release (ISO 26262-8 §8.4) — already on the
+  implementation plan as Task 1.
+- Cold-weather validation: the new 11.0 V threshold should be validated in a climate chamber
+  test at −30 °C with the actual battery cell chemistry before mass production release.
+- ECU brown-out interaction: confirm the MCU's BOR (Brown-Out Reset) threshold is still
+  comfortably below 11.0 V after accounting for harness drop and regulator dropout.
 ```

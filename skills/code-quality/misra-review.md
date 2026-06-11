@@ -1,12 +1,12 @@
 ---
 name: MISRA C:2025 Review
 short: Audit C code for MISRA C:2025 violations with rule IDs, fixes, and deviation templates
-description: Full compliance scan against MISRA C:2025 guidelines (~223 total: 22 directives + ~201 rules). MISRA C:2025 builds on C:2023 (the consolidated C:2012 + Amd1 security + Amd2/Amd3 C11/C18 + Amd4 multithreading/atomics = 221 guidelines) adding 4 new rules (8.18, 8.19, 11.11, 19.3), disapplying Rule 15.5, and refining 69 existing guidelines. Produces a findings table with rule IDs, violated code excerpts, corrected versions, and ready-to-use deviation justification templates.
+description: Full compliance scan against MISRA C:2025 guidelines (~223 total -> 22 directives + ~201 rules). MISRA C:2025 builds on C:2023 (the consolidated C:2012 + Amd1 security + Amd2/Amd3 C11/C18 + Amd4 multithreading/atomics = 221 guidelines) adding 4 new rules (8.18, 8.19, 11.11, 19.3), disapplying Rule 15.5, and refining 69 existing guidelines. Produces a findings table with rule IDs, violated code excerpts, corrected versions, and ready-to-use deviation justification templates.
 category: code-quality
 tags: [misra, c, compliance, safety, static-analysis]
 ---
 
-# Skill: MISRA C:2012 Review
+# Skill: MISRA C:2025 Review
 
 ## Context
 You are a MISRA C:2025 compliance expert with experience auditing embedded automotive C code in safety-critical projects (ISO 26262 ASIL-B/C/D). You know all ~223 guidelines (22 directives + ~201 rules, mandatory/required/advisory), including the Amd4 multithreading rules (22.11–22.20) and the C:2025 additions (Rules 8.18, 8.19, 11.11, 19.3). You understand deviation justification procedures used in automotive tool flows (Helix QAC, Polyspace, LDRA, PC-lint Plus). Where a project targets C:2023 (221 guidelines: 21 dir + 200 rules) rather than C:2025, note which rules differ.
@@ -65,7 +65,7 @@ Key rules to check (non-exhaustive):
 
 ## Output format
 ~~~
-## MISRA C:2012 Review
+## MISRA C:2025 Review
 
 ### Findings
 
@@ -91,7 +91,7 @@ Key rules to check (non-exhaustive):
 ### Deviation Template (if applicable)
 ```
 DEV-MISRA-<RuleID>-<Seq>
-Rule:          MISRA C:2012 Rule X.Y
+Rule:          MISRA C:2025 Rule X.Y
 Category:      Required / Advisory
 File(s):       <file.c>, line <N>
 Justification: <why the deviation is acceptable>
@@ -123,14 +123,15 @@ if (result) {                     /* line 7 */
 
 **Output:**
 ~~~
-## MISRA C:2012 Review
+## MISRA C:2025 Review
 
 ### Findings
-| # | Rule  | Category | Location | Description                                |
-|---|-------|----------|----------|--------------------------------------------|
-| 1 | 1.3   | M        | line 4   | Out-of-bounds write — undefined behavior   |
-| 2 | 14.2  | R        | line 3   | `for` loop not well-formed — bound `i <= 8` permits out-of-bounds index |
-| 3 | 14.4  | R        | line 7   | Controlling expression not essentially Boolean |
+| # | Rule    | Category | Location | Description                                |
+|---|---------|----------|----------|--------------------------------------------|
+| 1 | 1.3     | M        | line 4   | Out-of-bounds write — undefined behavior   |
+| 2 | 14.2    | R        | line 3   | `for` loop not well-formed — bound `i <= 8` permits out-of-bounds index |
+| 3 | 14.4    | R        | line 7   | Controlling expression not essentially Boolean |
+| 4 | Dir 4.6 | A        | line 2,6 | Bare `int` / `unsigned int` used; use fixed-size types from `<stdint.h>` |
 
 ---
 
@@ -156,4 +157,21 @@ for (i = 0; i < 8; i++) {
 #### Finding 3 — Rule 14.4 [Required]
 **Violated code:** `if (result)` — `result` is `unsigned int`, not Boolean.
 **Corrected version:** `if (result != 0U)`
+
+#### Finding 4 — Directive 4.6 [Advisory]
+**Violated code:**
+```c
+int i;
+unsigned int result = getValue();
+```
+**Explanation:** Directive 4.6 advises against bare `int` / `unsigned int` because the
+width is implementation-defined (16-bit on some targets, 32-bit on most). Use the
+fixed-size types from `<stdint.h>` so behaviour is portable across compilers and targets.
+**Corrected version:**
+```c
+uint8_t  i;                       /* loop index, bounded by 8 */
+uint32_t result = getValue();     /* assuming getValue() also returns a fixed-size type */
+```
+Note: `getValue()`'s declared return type should also be migrated to `uint32_t` —
+this is part of the same finding because the call site type follows from the prototype.
 ~~~

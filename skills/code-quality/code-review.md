@@ -54,18 +54,18 @@ You are a senior embedded software engineer specializing in safety-critical auto
 
 **Input:**
 ```c
-static uint16_t g_rpm;  /* updated by ISR */
+static uint16_t s_rpm;  /* updated by ISR */
 
 void SpeedController_Update(void) {
-    uint16_t rpm = g_rpm;
-    uint16_t filtered = (rpm + g_rpm) / 2;  /* simple IIR */
+    uint16_t rpm = s_rpm;
+    uint16_t filtered = (rpm + s_rpm) / 2;  /* simple IIR */
     if (filtered > 6000) {
         SetThrottle(0);
     }
 }
 
 void RPM_ISR(void) {
-    g_rpm = ReadTimerCapture();
+    s_rpm = ReadTimerCapture();
 }
 ```
 
@@ -76,20 +76,25 @@ void RPM_ISR(void) {
 ### Critical Findings
 
 #### [C1] Missing `volatile` on ISR-shared variable — line 1
-`g_rpm` is written by `RPM_ISR()` and read in `SpeedController_Update()`.
-Without `volatile`, the compiler may cache `g_rpm` in a register, making the
-task-context read stale indefinitely. Additionally, a 16-bit read is not atomic
-on all ARM Cortex-M variants; an ISR preempting mid-read can produce a torn value.
+`s_rpm` is a file-static written by `RPM_ISR()` and read in `SpeedController_Update()`. Without
+`volatile`, the compiler is free to hoist the load out of the function, cache it in
+a register, or skip the second read entirely on the assumption that nothing else
+modifies the variable. The task-context read can become permanently stale.
+(Note: a single aligned 16-bit load is atomic on Cortex-M0/M0+/M3/M4/M7/M33, so the
+hazard here is compiler optimisation, not a torn read. The torn-access concern
+arises only for non-atomic accesses — e.g., a 64-bit value or a misaligned word.
+The double-read race is reported separately as M1.)
 **Fix:**
 ```c
-static volatile uint16_t g_rpm;
+static volatile uint16_t s_rpm;
 ```
-Wrap the read with a critical section or use an atomic copy:
+For values wider than a single atomic access, also wrap the read in a critical
+section so the ISR cannot preempt mid-copy:
 ```c
 uint16_t SpeedController_GetRpm(void) {
     uint16_t snapshot;
     __disable_irq();
-    snapshot = g_rpm;
+    snapshot = s_rpm;
     __enable_irq();
     return snapshot;
 }
@@ -98,8 +103,8 @@ uint16_t SpeedController_GetRpm(void) {
 ### Major Findings
 
 #### [M1] Double read of volatile introduces race — line 5
-`(rpm + g_rpm) / 2` reads `g_rpm` twice. Even after adding `volatile`, the ISR
-can update `g_rpm` between the two reads, corrupting the filtered value.
+`(rpm + s_rpm) / 2` reads `s_rpm` twice. Even after adding `volatile`, the ISR
+can update `s_rpm` between the two reads, corrupting the filtered value.
 **Fix:** Take a single snapshot at the start of the function and use it throughout.
 
 ### Minor Findings

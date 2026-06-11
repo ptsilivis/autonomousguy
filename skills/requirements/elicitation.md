@@ -69,16 +69,16 @@ You are a requirements engineer with expertise in embedded automotive systems an
 - **Statement**: The Battery Monitoring Module shall measure the battery terminal voltage with a resolution of ≤ 100 mV and an accuracy of ± 200 mV over the operating temperature range of −40 °C to +85 °C.
 - **Type**: Performance
 - **Priority**: Must
-- **ASIL**: QM
+- **ASIL**: B
 - **Verification**: Test
 - **Source**: Customer brief
-- **Notes**: Resolution and accuracy values assumed; must be confirmed against ADC configuration and sensor datasheet.
+- **Notes**: Resolution and accuracy values assumed; must be confirmed against ADC configuration and sensor datasheet. ASIL inherited from SG-BATMON-01 (uncommanded ECU brown-out due to undetected low-voltage condition).
 
 #### SW-REQ-BATMON-002
 - **Statement**: When the measured battery voltage falls below the low-voltage threshold for a debounce duration of ≥ 500 ms, the Battery Monitoring Module shall set the LowVoltageWarning signal to ACTIVE.
 - **Type**: Functional
 - **Priority**: Must
-- **ASIL**: QM
+- **ASIL**: B
 - **Verification**: Test
 - **Source**: Customer brief
 - **Notes**: Threshold value (e.g., 11.5 V) and debounce duration must be defined as calibratable parameters.
@@ -87,7 +87,7 @@ You are a requirements engineer with expertise in embedded automotive systems an
 - **Statement**: When the LowVoltageWarning signal transitions to ACTIVE, the Battery Monitoring Module shall report a DTC to the Diagnostic Event Manager (Dem) using Dem_SetEventStatus(DEM_EVENT_STATUS_FAILED).
 - **Type**: Diagnostic
 - **Priority**: Must
-- **ASIL**: QM
+- **ASIL**: B
 - **Verification**: Test
 - **Source**: Customer brief ("save this event")
 
@@ -98,13 +98,11 @@ You are a requirements engineer with expertise in embedded automotive systems an
 - **ASIL**: QM
 - **Verification**: Test
 - **Source**: Customer brief ("doesn't drain the battery itself")
-- **Notes**: Quiescent current budget must be allocated at system level. 2 mA is a placeholder.
+- **Notes**: Quiescent current budget must be allocated at system level. 2 mA is a placeholder. ASIL-QM because exceeding 2 mA degrades vehicle availability but does not violate a safety goal.
 
 ### Open Questions
 1. What is the exact low-voltage threshold? (assumed 11.5 V)
 2. Should the warning be latched until reset, or deactivated automatically when voltage recovers?
 3. Which DTC event ID should be reported (requires DEM configuration)?
-4. Is this module safety-relevant (ASIL assignment needed if warning affects driver behavior)?
+4. Confirm the safety goal allocation — assumed SG-BATMON-01 (ASIL-B) drives 001–003.
 ```
-
-> *Note: ASIL values in this example are illustrative for this skill only. The BatMon module carries different ASIL ratings in other autonomousguy skill examples.*

@@ -71,7 +71,7 @@ Generated: <date>
 
 ## Example
 
-**Input:** Repository for a Battery Management ECU. CMake build, EB Tresos, AUTOSAR Classic 4.3, Cortex-M4.
+**Input:** Repository for a Battery Management ECU. CMake build, EB Tresos, AUTOSAR Classic 4.3, ARM Cortex-M class MCU.
 
 **Output (excerpt written to `.autonomousguy/CODEBASE_MAP.md`):**
 ```markdown
@@ -79,8 +79,9 @@ Generated: <date>
 Generated: 2025-01-15
 
 ## ECU Overview
-Battery Management System ECU for 48 V mild-hybrid. Target: NXP S32K344 (Cortex-M4).
-AUTOSAR Classic 4.3, EB Tresos 26. Highest ASIL: B (cell overvoltage protection).
+Battery Management System ECU for 48 V mild-hybrid. Target: ARM Cortex-M class MCU
+(detect specifics from linker script / toolchain flags). AUTOSAR Classic 4.3, EB Tresos 26.
+Highest ASIL: B (cell overvoltage protection).
 
 ## SWC Inventory
 | SWC Name               | Type            | Source Files              | Runnables                        | Ports            |
@@ -91,6 +92,6 @@ AUTOSAR Classic 4.3, EB Tresos 26. Highest ASIL: B (cell overvoltage protection)
 
 ## Architectural Concerns
 1. [CRITICAL] BatState_App.c line 87: direct write to ADC register — MCAL abstraction violation.
-2. [MAJOR] g_cellVoltage (BatState_App.c) accessed from both App_MainRunnable and an ISR without ExclusiveArea.
+2. [MAJOR] s_BatState_CellVoltage (BatState_App.c) accessed from both App_MainRunnable and an ISR without ExclusiveArea.
 3. [INFO] No ARXML found for CellVoltage_SensorSWC ports — RTE generation will fail without it.
 ```

@@ -37,7 +37,7 @@ You are a requirements engineer with ISO 26262 and ASPICE experience, responsibl
 ### Forward Trace (Requirement → Design → Test)
 | SW-REQ ID         | ASIL | Design Element(s)              | Test Case(s)          | Status  |
 |-------------------|------|--------------------------------|-----------------------|---------|
-| SW-REQ-BATMON-001 | QM   | BatMon_MainRunnable, ADC port  | TC-BATMON-001         | Covered |
+| SW-REQ-BATMON-001 | B    | BatMon_MainRunnable, ADC port  | TC-BATMON-001         | Covered |
 ...
 
 ### Reverse Trace (Design / Test → Requirement)
@@ -61,13 +61,10 @@ You are a requirements engineer with ISO 26262 and ASPICE experience, responsibl
 
 ## Example
 
-> *Note: ASIL values in this example are illustrative for this skill. The BatMon module carries different ASIL ratings across autonomousguy skill examples.*
-
 **Input:**
-Requirements: SW-REQ-BATMON-001 (QM), SW-REQ-BATMON-002 (QM), SW-REQ-BATMON-003 (QM), SW-REQ-BATMON-004 (QM, safety-tagged by safety team)
+Requirements: SW-REQ-BATMON-001 (B), SW-REQ-BATMON-002 (B), SW-REQ-BATMON-003 (B), SW-REQ-BATMON-004 (B, quiescent-current safety contribution)
 Design: BatMon_MainRunnable, BatMon_ADC_Port, BatMon_Init, LowVoltageWarning_Port, DEM_Report_Operation
 Tests: TC-BATMON-001 (voltage measurement accuracy), TC-BATMON-002 (low voltage detection), TC-BATMON-003 (DTC reporting)
-Note: SW-REQ-BATMON-004 is ASIL-A per safety team clarification.
 
 **Output:**
 ```
@@ -76,10 +73,10 @@ Note: SW-REQ-BATMON-004 is ASIL-A per safety team clarification.
 ### Forward Trace
 | SW-REQ ID         | ASIL | Design Element(s)                      | Test Case(s)    | Status        |
 |-------------------|------|----------------------------------------|-----------------|---------------|
-| SW-REQ-BATMON-001 | QM   | BatMon_MainRunnable, BatMon_ADC_Port   | TC-BATMON-001   | Covered       |
-| SW-REQ-BATMON-002 | QM   | BatMon_MainRunnable, LowVoltageWarning_Port | TC-BATMON-002 | Covered    |
-| SW-REQ-BATMON-003 | QM   | DEM_Report_Operation                   | TC-BATMON-003   | Covered       |
-| SW-REQ-BATMON-004 | A    | BatMon_Init (quiescent current config) | —               | GAP (safety!) |
+| SW-REQ-BATMON-001 | B    | BatMon_MainRunnable, BatMon_ADC_Port   | TC-BATMON-001   | Covered       |
+| SW-REQ-BATMON-002 | B    | BatMon_MainRunnable, LowVoltageWarning_Port | TC-BATMON-002 | Covered    |
+| SW-REQ-BATMON-003 | B    | DEM_Report_Operation                   | TC-BATMON-003   | Covered       |
+| SW-REQ-BATMON-004 | B    | BatMon_Init (quiescent current config) | —               | GAP (safety!) |
 
 ### Reverse Trace
 | Artifact                  | Type      | Traced To SW-REQ  | Status   |
@@ -96,7 +93,7 @@ Note: SW-REQ-BATMON-004 is ASIL-A per safety team clarification.
 ### Gap Report
 
 #### Safety Gaps (ASIL ≥ A, no test)
-- **SW-REQ-BATMON-004 [ASIL-A]**: No test case covers the ≤ 2 mA quiescent current constraint.
+- **SW-REQ-BATMON-004 [ASIL-B]**: No test case covers the ≤ 2 mA quiescent current constraint.
   **Action required**: Create TC-BATMON-004 measuring ECU sleep-mode current with battery monitoring
-  active. ISO 26262 Part 6 §9.4.4 mandates verification evidence for every ASIL-A software requirement.
+  active. ISO 26262 Part 6 §9.4.4 mandates verification evidence for every ASIL-tagged software requirement.
 ```

@@ -9,7 +9,7 @@ tags: [autosar, naming, conventions, misra, identifiers]
 # Skill: AUTOSAR Naming Conventions
 
 ## Context
-You are an AUTOSAR methodology expert who enforces naming conventions consistent with AUTOSAR Classic Platform guidelines, MISRA C:2012 Rule 5.x identifier uniqueness requirements, and typical automotive project style guides (e.g., following AUTOSAR Methodology v5, Vector naming patterns). You help teams audit existing code and generate correctly named identifiers for new elements.
+You are an AUTOSAR methodology expert who enforces naming conventions consistent with AUTOSAR Classic Platform guidelines, MISRA C:2025 Rule 5.x identifier uniqueness requirements, and typical automotive project style guides (e.g., following AUTOSAR Methodology v5, Vector naming patterns). You help teams audit existing code and generate correctly named identifiers for new elements.
 
 ## Instructions
 1. Apply and enforce the following conventions:
@@ -25,10 +25,12 @@ You are an AUTOSAR methodology expert who enforces naming conventions consistent
    - DataElement: `<SignalName>_<Unit>` or just `<SignalName>` (e.g., `Voltage_mV`, `Active`)
    - Interface: `<Signal>If` or `<Signal>Interface` (e.g., `BattVoltageIf`)
 
-   **C identifiers:**
-   - Global variables: `<Module>_<Name>` with prefix `g_` for file-static: `g_BatMon_FilteredVoltage`
-   - Local variables: camelCase or underscore, no prefix: `filteredVoltage` or `filtered_voltage`
-   - Pointer parameters: `p_` prefix: `p_VoltageBuffer`
+   **C identifiers (storage-class prefix convention):**
+   - `g_` prefix — **non-static** globals (external linkage). Avoid these in MISRA-aligned code where possible; if used, always with module prefix: `g_BatMon_LastError`.
+   - `s_` prefix — **file-static** variables (`static` at file scope). Module prefix: `s_BatMon_FilteredVoltage`. This is the conventional location for module-internal state.
+   - No prefix — local variables and function parameters: `filteredVoltage` or `filtered_voltage`.
+   - `p_` prefix — pointer parameters: `p_VoltageBuffer`.
+   - Static locals (function-scope `static`): use `s_` prefix as well; the storage class is the same as file-static.
    - Constants / `#define` macros: `<MODULE>_<NAME>` all-caps: `BATMON_MAX_VOLTAGE_MV`
    - Function-like macros: same as constants, add trailing parentheses in usage
    - Typedefs: `<Module>_<Name>_t` (e.g., `BatMon_VoltageStatus_t`)
@@ -87,7 +89,7 @@ typedef struct { uint8_t st; } status;
 ### Violations Found
 | Location | Identifier | Issue                                      | Corrected Name           |
 |----------|------------|--------------------------------------------|--------------------------|
-| line 2   | voltage    | Global missing module prefix and g_ prefix | g_BatMon_Voltage         |
+| line 2   | voltage    | File-static missing module prefix and s_ prefix | s_BatMon_Voltage    |
 | line 2   | int        | Use AUTOSAR platform type                  | uint16 (mV resolution)   |
 | line 3   | check      | Missing module prefix, vague action name   | BatMon_prv_CheckThreshold|
 | line 4   | status     | Typedef missing module prefix and _t suffix| BatMon_Status_t          |

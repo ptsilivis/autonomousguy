@@ -1,7 +1,7 @@
 ---
 name: MISRA-Driven Development
 short: Write new embedded C code that is MISRA C:2025 compliant from the first line
-description: Guides the development of new C functions, modules, or data structures that are MISRA C:2025 compliant by construction — selecting compliant idioms, essential-type-safe arithmetic, correct loop and control patterns, and safe pointer usage from the start rather than retrofitting compliance after the fact. Targets MISRA C:2025 (~223 guidelines: 22 directives + ~201 rules), which encompasses C:2023's consolidated C:2012 + Amd1 security + Amd2/Amd3 C11/C18 + Amd4 multithreading base, plus 4 new rules and structural refinements.
+description: Guides the development of new C functions, modules, or data structures that are MISRA C:2025 compliant by construction — selecting compliant idioms, essential-type-safe arithmetic, correct loop and control patterns, and safe pointer usage from the start rather than retrofitting compliance after the fact. Targets MISRA C:2025 (~223 guidelines -> 22 directives + ~201 rules), which encompasses C:2023's consolidated C:2012 + Amd1 security + Amd2/Amd3 C11/C18 + Amd4 multithreading base, plus 4 new rules and structural refinements.
 category: code-quality
 tags: [misra, c, development, compliance, safety, embedded, automotive]
 ---
@@ -37,7 +37,7 @@ You are a senior embedded C developer who writes MISRA C:2025 compliant code fro
 7. **Null pointer checks**: write `if (ptr != NULL)` not `if (ptr)` — Rule 11.11 (C:2025) requires explicit NULL comparison.
 
 Generate the requested code applying all rules above. Add inline MISRA comments only where a deviation is made, using the format:
-`/* MISRA C:2012 Rule X.Y deviation: <reason> */`
+`/* MISRA C:2025 Rule X.Y deviation: <reason> */`
 
 ## Input expected
 - Description of the function, module, or data structure to implement

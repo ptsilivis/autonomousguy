@@ -93,13 +93,20 @@ Layer: Application SWC interface / RTE contract.
 | Calibration tool signal mapping | Tool config   | Update signal name in CANape/INCA measurement config    |
 
 ### Safety Impact
-None — `BattVoltageIf` is QM. If this interface were ASIL-tagged, a safety impact assessment
-per ISO 26262-8 §8.4 would be required, and the change would need re-verification evidence.
+**Required** — `BattVoltageIf` carries ASIL-B (allocated from SG-BATMON-01: prevent undetected
+ECU brown-out). A safety impact assessment per ISO 26262-8 §8.4 is required for this rename
+because the affected signal contributes to a safety-related function.
+- Confirm the rename is semantics-preserving (it is — same type, range, units, semantics).
+- Re-verification: TC-BATMON-001/002 and TC-DISPLAY-003 must be re-executed and recorded in
+  the safety case as evidence for SW-REQ-BATMON-001.
+- Configuration management: the interface ARXML revision must be documented under change
+  control per ISO 26262-8 §7.
 
 ### Regression Scope Recommendation
 **Targeted** — run the BatMon signal path integration tests (BatMon → DisplayCtrl chain)
-plus a build verification of both SWCs. No need for full ECU regression since the change
-is a rename with no functional or behavioral effect.
+plus a build verification of both SWCs, and re-execute the ASIL-B test cases for the
+safety case. No need for full ECU regression since the change is a rename with no
+functional or behavioral effect.
 
 ### Open-Loop Impacts
 None — this is a pure rename with no functional effect. No runtime validation beyond
