@@ -1,7 +1,7 @@
 ---
 name: CAN DBC Analysis
 short: Parse and analyse CAN DBC files — signals, messages, multiplexing, and AUTOSAR COM mapping
-description: Extracts and analyses CAN DBC file content: message inventory, signal definitions (start bit, length, byte order, factor, offset, unit, value tables), multiplexed signals, and node assignments. Maps findings to AUTOSAR COM layer configuration (ComSignal, ComIPdu) and flags common DBC inconsistencies.
+description: "Extracts and analyses CAN DBC file content: message inventory, signal definitions (start bit, length, byte order, factor, offset, unit, value tables), multiplexed signals, and node assignments. Maps findings to AUTOSAR COM layer configuration (ComSignal, ComIPdu) and flags common DBC inconsistencies."
 category: toolchain
 tags: [can, dbc, autosar, com, signals, embedded, automotive, network]
 ---

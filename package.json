@@ -1,15 +1,10 @@
 {
   "name": "autonomousguy",
-  "version": "0.3.0",
-  "description": "AI skill prompts for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development",
-  "bin": {
-    "autonomousguy": "bin/cli.js"
-  },
+  "version": "0.4.0",
+  "description": "AI skill prompts for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development. Install via `npx skills add ptsilivis/autonomousguy`.",
   "files": [
-    "bin/",
-    "skills/",
-    "install.sh",
-    "install.ps1"
+    "bin/validate.js",
+    "skills/"
   ],
   "homepage": "https://github.com/ptsilivis/autonomousguy#readme",
   "repository": {
@@ -27,12 +22,12 @@
     "automotive",
     "ai",
     "ai-skills",
-    "ai-prompts",
+    "agent-skills",
+    "skills",
     "llm-prompts",
     "iso26262",
     "safety",
     "ecu",
-    "embedded-systems",
     "automotive-engineering",
     "claude-code",
     "github-copilot",
@@ -42,13 +37,10 @@
     "functional-safety"
   ],
   "scripts": {
-    "prepublishOnly": "node bin/validate.js"
+    "validate": "node bin/validate.js"
   },
   "license": "MIT",
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "@inquirer/prompts": "^7.0.0"
   }
 }

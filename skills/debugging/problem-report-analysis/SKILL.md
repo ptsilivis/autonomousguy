@@ -1,7 +1,7 @@
 ---
 name: Problem Report Analysis
 short: Analyse a field or test problem report and produce a structured root-cause investigation plan
-description: Takes a problem report (PR / bug ticket / field issue) and produces a structured analysis: symptom classification, affected SWC/BSW mapping, hypotheses ranked by likelihood, data to collect, and a step-by-step investigation plan. Designed to accelerate root-cause identification in complex AUTOSAR embedded systems.
+description: "Takes a problem report (PR / bug ticket / field issue) and produces a structured analysis: symptom classification, affected SWC/BSW mapping, hypotheses ranked by likelihood, data to collect, and a step-by-step investigation plan. Designed to accelerate root-cause identification in complex AUTOSAR embedded systems."
 category: debugging
 tags: [debugging, problem-report, root-cause, automotive, embedded, autosar, field-issue]
 ---
