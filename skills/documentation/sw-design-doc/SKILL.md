@@ -1,7 +1,7 @@
 ---
 name: Software Design Document
 short: Generate a structured SW design document section per AUTOSAR methodology
-description: Produces Software Design Document (SDD) content following AUTOSAR methodology and typical automotive project templates: module overview, static design (SWC types, ports, data types), dynamic behavior (runnables, sequences, state machines), memory section mapping, BSW dependencies, and error handling. Compatible with ASPICE SWE.3 work product requirements.
+description: "Produces Software Design Document (SDD) content following AUTOSAR methodology and typical automotive project templates: module overview, static design (SWC types, ports, data types), dynamic behavior (runnables, sequences, state machines), memory section mapping, BSW dependencies, and error handling. Compatible with ASPICE SWE.3 work product requirements."
 category: documentation
 tags: [documentation, design-doc, autosar, aspice, swe3, embedded, architecture]
 ---

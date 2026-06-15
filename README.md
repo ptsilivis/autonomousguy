@@ -15,25 +15,38 @@ Install once. Works with any AI tool. No lock-in.
 
 ## Installation
 
-### npx (recommended)
+autonomousguy ships as a set of [Agent Skills](https://github.com/vercel-labs/skills) and is installed with the standard `skills` CLI. The CLI resolves the correct path per agent — no custom installer required.
+
+### Install all 30 skills
 
 ```bash
-npx autonomousguy init
+npx skills add ptsilivis/autonomousguy
 ```
 
-### Shell script — Linux / macOS
+### Install a single skill
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ptsilivis/autonomousguy/master/install.sh | bash
+npx skills add ptsilivis/autonomousguy --skill misra-review
 ```
 
-### PowerShell — Windows
+### Browse before installing
 
-```powershell
-irm https://raw.githubusercontent.com/ptsilivis/autonomousguy/master/install.ps1 | iex
+```bash
+npx skills add ptsilivis/autonomousguy --list
 ```
 
-The installer asks three questions: **scope** (local project or global), **tool(s)** (see supported tools below), and **skills** (all 30 or select by category). Skills land at `<base>/<tool-dir>/skills/autonomousguy/<category>/<skill>.md` (or `.claude/commands/autonomousguy/...` for Claude Code, so skills are invokable as `/autonomousguy:<skill-name>`).
+### Target a specific agent
+
+```bash
+npx skills add ptsilivis/autonomousguy -a claude-code
+npx skills add ptsilivis/autonomousguy -a copilot
+```
+
+### Non-interactive (CI)
+
+```bash
+npx skills add ptsilivis/autonomousguy -y
+```
 
 ---
 
@@ -119,9 +132,7 @@ Start with `workspace/codebase-analysis` on any new project — it writes `.auto
 
 ## How to use a skill
 
-**Paste into any AI tool:** copy the full skill file (including frontmatter) into your tool's system prompt, custom instructions field, or chat window.
-
-**Auto-discovery (Claude Code, Cursor, Gemini CLI):** after installation, skills live in `.<tool>/skills/autonomousguy/<category>/`. Invoke by name or via `/skill-name` syntax.
+After `npx skills add ptsilivis/autonomousguy`, the CLI installs each skill in your agent's native location (e.g. `.claude/skills/<name>/SKILL.md`). Invoke the skill from your agent the same way you invoke any other Agent Skill.
 
 **Recommended workflow:**
 1. Run `codebase-analysis` first on any new project.
@@ -132,16 +143,7 @@ Start with `workspace/codebase-analysis` on any new project — it writes `.auto
 
 ## Supported AI tools
 
-| Tool | Skills installed at |
-|---|---|
-| Claude Code | `.claude/commands/autonomousguy/` — invokable as `/autonomousguy:<skill>` |
-| GitHub Copilot | `.github/skills/autonomousguy/` |
-| Cursor | `.cursor/skills/autonomousguy/` |
-| Gemini CLI | `.gemini/skills/autonomousguy/` |
-| ChatGPT Codex | `.agents/skills/autonomousguy/` |
-| OpenCode | `.opencode/skills/autonomousguy/` |
-| JetBrains AI | `.idea/skills/autonomousguy/` |
-| General / other | `.autonomousguy/skills/` |
+Path resolution is handled by the `skills` CLI per agent. Pass `-a <agent>` to target one explicitly: `claude-code`, `copilot`, `cursor`, `gemini-cli`, `codex`, `opencode`. Without `-a`, the CLI detects installed agents.
 
 ---
 
@@ -172,14 +174,15 @@ tags: [tag1, tag2]
 Open an issue before adding new categories (minimum two skills per category). For new skills within an existing category, a PR is sufficient.
 
 **New skill checklist:**
-- Add a `.md` file to `skills/<category>/` — no registration needed, the CLI discovers it automatically.
-- Include all five frontmatter fields and all five content sections.
+- Create a folder `skills/<category>/<skill-name>/` with a `SKILL.md` inside — no registration needed, the `skills` CLI discovers it automatically.
+- Include all five frontmatter fields (`name`, `short`, `description`, `category`, `tags`) and all five content sections.
 - The `## Example` must use realistic ECU inputs/outputs — no placeholders.
+- Optional supporting files (`scripts/`, `references/`, `assets/`) may live alongside `SKILL.md`.
 
 ```bash
 git clone https://github.com/ptsilivis/autonomousguy.git
-cd autonomousguy && npm install
-node bin/cli.js   # run the installer locally
+cd autonomousguy
+node bin/validate.js   # validate skill structure
 ```
 
 ---

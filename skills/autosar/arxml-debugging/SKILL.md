@@ -1,7 +1,7 @@
 ---
 name: ARXML Debugging
 short: Diagnose and fix ARXML consistency errors across EB Tresos, DaVinci, and RTE generator
-description: Identifies and resolves ARXML consistency errors: broken cross-references, missing port interface definitions, ComSpec mismatches between sender and receiver, data type resolution failures, and runnable mapping errors. Works from EB Tresos validation logs, DaVinci error reports, or raw ARXML excerpts.
+description: "Identifies and resolves ARXML consistency errors: broken cross-references, missing port interface definitions, ComSpec mismatches between sender and receiver, data type resolution failures, and runnable mapping errors. Works from EB Tresos validation logs, DaVinci error reports, or raw ARXML excerpts."
 category: autosar
 tags: [autosar, arxml, debugging, eb-tresos, davinci, rte, consistency]
 ---

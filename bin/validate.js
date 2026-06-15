@@ -29,6 +29,18 @@ function validateFile(filePath) {
         errors.push(`frontmatter missing key: ${key}`);
       }
     }
+    // Catch unquoted ": " in scalar values — silently breaks YAML parsers used
+    // by the upstream `skills` CLI. Quote with double-quotes to fix.
+    for (const key of ['name', 'short', 'description']) {
+      const m = fm.match(new RegExp(`^${key}\\s*:\\s*(.*)$`, 'm'));
+      if (!m) continue;
+      const val = m[1].trim();
+      const quoted = (val.startsWith('"') && val.endsWith('"')) ||
+                     (val.startsWith("'") && val.endsWith("'"));
+      if (!quoted && /: /.test(val)) {
+        errors.push(`frontmatter "${key}" contains unquoted ": " — wrap value in double quotes`);
+      }
+    }
   }
 
   // Check sections in order
@@ -50,7 +62,7 @@ function findSkillFiles(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) results.push(...findSkillFiles(full));
-    else if (entry.name.endsWith('.md')) results.push(full);
+    else if (entry.name === 'SKILL.md') results.push(full);
   }
   return results;
 }

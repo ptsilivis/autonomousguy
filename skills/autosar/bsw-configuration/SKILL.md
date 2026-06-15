@@ -1,7 +1,7 @@
 ---
 name: BSW Module Configuration
 short: Configure AUTOSAR BSW modules (Com, NvM, Dem, Dcm) in EB Tresos or DaVinci
-description: Guides configuration of AUTOSAR Basic Software modules step by step: Com (PDU routing, signal mapping, I-PDU composition), NvM (block configuration, immediate/deferred write), Dem (event definition, DTC mapping, enablement conditions), and Dcm (service table, DID configuration, routine control). Outputs a configuration checklist and common error resolutions.
+description: "Guides configuration of AUTOSAR Basic Software modules step by step: Com (PDU routing, signal mapping, I-PDU composition), NvM (block configuration, immediate/deferred write), Dem (event definition, DTC mapping, enablement conditions), and Dcm (service table, DID configuration, routine control). Outputs a configuration checklist and common error resolutions."
 category: autosar
 tags: [autosar, bsw, com, nvm, dem, dcm, eb-tresos, davinci, configuration]
 ---
