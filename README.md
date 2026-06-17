@@ -50,83 +50,22 @@ npx skills add ptsilivis/autonomousguy -y
 
 ---
 
-## Skill catalogue
+## Skill catalogue (10 skills)
 
-Start with `workspace/codebase-analysis` on any new project — it writes `.autonomousguy/CODEBASE_MAP.md`, which every other skill references.
+Each skill is mode-aware: it covers several related workflows in one prompt and routes from the user's input to the right behaviour. Start with `codebase-analysis` on any new project — it writes `.autonomousguy/CODEBASE_MAP.md`, which the other skills reference.
 
-### `workspace` — Onboarding
-| Skill | What it does |
+| Skill | Modes / what it does |
 |---|---|
-| `codebase-analysis` | Scans the repo; maps SWCs, BSW usage, signal flows, and ASIL zones into `CODEBASE_MAP.md`. |
-
-### `autosar` — AUTOSAR Classic
-| Skill | What it does |
-|---|---|
-| `autosar-integration` | Aligns SWC ports with ARXML, verifies RTE API consistency, resolves integration-time errors. |
-| `swc-development` | Develops a new SWC from a port interface spec: runnable structure, RTE API calls, ISR-safe patterns. |
-| `bsw-configuration` | Configures BSW modules (Com, Dem, NvM, Dcm, MemIf, Fee) from functional requirements. |
-| `arxml-debugging` | Diagnoses ARXML schema violations, missing references, and toolchain import errors. |
-| `rte-generation-troubleshooting` | Resolves RTE generator failures — unresolved ports, conflicting timing, mode-manager conflicts. |
-| `com-stack-debugging` | Traces a missing or wrong CAN signal through PduR, Com, CanIf, and CanDrv to its root cause. |
-
-### `code-quality` — MISRA & Code Review
-| Skill | What it does |
-|---|---|
-| `misra-review` | MISRA C:2025 audit: violations by rule ID, severity, and location, with compliant rewrites. |
-| `misra-driven-development` | Generates new code that is compliant-by-construction across memory, arithmetic, and control flow. |
-| `code-review` | Embedded C review: correctness, ISR safety, stack usage, shared-resource access, AUTOSAR guidelines. |
-| `naming-conventions` | Audits identifiers against AUTOSAR and project-specific conventions; produces a rename map. |
-
-### `architecture` — Design
-| Skill | What it does |
-|---|---|
-| `component-design` | Designs an AUTOSAR SWC topology: components, port types, data flows, ASIL boundaries. |
-| `uml-generation` | Produces PlantUML or Mermaid diagrams (sequence, class, activity, state machine). |
-| `interface-definition` | Specifies port interfaces with data element types, init values, and an ARXML sketch. |
-
-### `requirements` — Requirements Engineering
-| Skill | What it does |
-|---|---|
-| `elicitation` | Transforms an informal brief into EARS-notation requirements with acceptance criteria. |
-| `refinement` | Audits requirements for ambiguity, incompleteness, and contradictions; rewrites defective items. |
-| `traceability` | Builds a bidirectional requirements-to-implementation traceability matrix. |
-
-### `safety` — ISO 26262
-| Skill | What it does |
-|---|---|
-| `iso26262-asil` | Conducts a HARA: rates Severity / Exposure / Controllability, derives ASIL and Safety Goals. |
-| `safety-goals` | Develops Safety Goals with FTTI, Functional Safety Requirements, Safe States, and ASIL decomposition. |
-
-### `testing` — Test Design
-| Skill | What it does |
-|---|---|
-| `unit-test-generation` | Generates MC/DC-adequate test cases with a coverage matrix and CppUTest / Unity code. |
-| `boundary-analysis` | Applies BVA to embedded fixed-width types including overflow and off-by-one detection. |
-
-### `documentation` — Technical Writing
-| Skill | What it does |
-|---|---|
-| `doxygen` | Generates Doxygen comment blocks for functions, structs, and modules. |
-| `sw-design-doc` | Produces an ASPICE SWE.3-compliant Software Design Document. |
-| `changelog` | Writes a structured release changelog and flags safety-relevant changes requiring re-verification. |
-
-### `toolchain` — Build & Interfaces
-| Skill | What it does |
-|---|---|
-| `cmake-conan` | Generates CMake toolchain files and Conan profiles for ARM Cortex-M/R cross-compilation. |
-| `can-dbc-analysis` | Maps DBC signals to AUTOSAR COM PDUs; flags scaling, endianness, and cycle-time issues. |
-
-### `debugging` — Fault Investigation
-| Skill | What it does |
-|---|---|
-| `problem-report-analysis` | Produces a root-cause investigation plan from a field problem report. |
-| `targeted-debugging` | Guides debugging of watchdog resets, HardFaults, stack overflows, and race conditions. |
-
-### `change-management` — Change Control
-| Skill | What it does |
-|---|---|
-| `change-request-analysis` | Analyses scope, ASIL impact, and affected components; produces an implementation plan. |
-| `impact-analysis` | Traces the full ripple effect across source, ARXML, requirements, tests, and safety artefacts. |
+| `codebase-analysis` | First-run repo scan — maps SWCs, BSW usage, signal flows, ASIL zones, and function index into `CODEBASE_MAP.md`. |
+| `autosar-swc` | (1) Component design, (2) Interface definition, (3) SWC development, (4) Diagram generation (plain-text box-and-arrow — no Mermaid/PlantUML renderer required), (5) Integration review. Covers the full SWC lifecycle from topology to ARXML-importable code and integration audits. |
+| `autosar-bsw` | (1) BSW module configuration (Com/NvM/Dem/Dcm/Os/MemIf), (2) ARXML debugging, (3) RTE generation troubleshooting, (4) COM stack debugging (CanDrv → CanIf → PduR → Com signal flow, RX and TX). |
+| `misra` | (1) Review existing code against MISRA C:2025 (~223 guidelines), (2) Develop new code that is MISRA-compliant by construction. Full rule reference at `references/rules.md`. |
+| `code-review` | (1) Correctness review (ISR safety, integer overflow, race conditions, stack, control flow, ISO 26262 readiness), (2) AUTOSAR naming-convention audit / generation. |
+| `requirements` | (1) Elicitation (EARS notation, ASIL attributes), (2) Refinement (vague → measurable), (3) Traceability matrix with safety-gap detection. |
+| `iso26262` | (1) HARA / ASIL determination with S/E/C lookup, (2) Safety Goals & FSC with FTTI, FDTI, FRTI, EOTI and Functional Safety Requirements. Full reference at `references/asil-table.md`. |
+| `embedded-testing` | (1) MC/DC-covering unit test generation with stubs and coverage matrix, (2) Boundary value analysis for embedded types with overflow / wrap / truncation risks. |
+| `embedded-debugging` | (1) Problem-report triage with ranked hypotheses and investigation plan, (2) Targeted fault debugging (HardFault, watchdog, Dem event, stack overflow, AUTOSAR OS errors) with GDB / TRACE32 commands. |
+| `change-management` | (1) Change-request analysis (planning before work begins), (2) Impact analysis (tracing direct + indirect ripple effects with regression scope). |
 
 ---
 
