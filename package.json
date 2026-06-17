@@ -1,6 +1,6 @@
 {
   "name": "autonomousguy",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "AI skill prompts for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development. Install via `npx skills add ptsilivis/autonomousguy`.",
   "files": [
     "bin/validate.js",

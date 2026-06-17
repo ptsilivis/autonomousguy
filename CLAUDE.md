@@ -60,21 +60,22 @@ tags: [tag1, tag2]
 
 Optional supporting files (`scripts/`, `references/`, `assets/`) may live alongside `SKILL.md`. The `skills` CLI auto-discovers everything in the skill folder — no registration step needed.
 
-### Skill inventory
+### Skill inventory (10 consolidated skills, mode-aware)
 
-| Category | Skills | Domain |
+| Path | Skill | Modes |
 |---|---|---|
-| `workspace/` | codebase-analysis | First-run scan → writes `.autonomousguy/CODEBASE_MAP.md` |
-| `autosar/` | autosar-integration, swc-development, bsw-configuration, arxml-debugging, rte-generation-troubleshooting, com-stack-debugging | AUTOSAR Classic end-to-end |
-| `code-quality/` | misra-review, misra-driven-development, code-review, naming-conventions | MISRA C:2025 audit and compliant development |
-| `architecture/` | component-design, uml-generation, interface-definition | SWC topology, UML (PlantUML/Mermaid), port interfaces |
-| `requirements/` | elicitation, refinement, traceability | EARS notation, defect detection, traceability matrix |
-| `safety/` | iso26262-asil, safety-goals | HARA, ASIL lookup, Safety Goals, FTTI, FSR derivation |
-| `testing/` | unit-test-generation, boundary-analysis | MC/DC test generation, BVA for embedded types |
-| `documentation/` | doxygen, sw-design-doc, changelog | Doxygen, ASPICE SWE.3 SDD, release changelogs |
-| `toolchain/` | cmake-conan, can-dbc-analysis | ARM cross-compilation, CAN DBC → AUTOSAR COM mapping |
-| `debugging/` | problem-report-analysis, targeted-debugging | Field PR investigation, watchdog/race/HardFault debugging |
-| `change-management/` | change-request-analysis, impact-analysis | CR analysis with ASIL impact, full ripple-effect tracing |
+| `workspace/codebase-analysis/` | Codebase Analysis | First-run scan → `.autonomousguy/CODEBASE_MAP.md` |
+| `autosar/autosar-swc/` | AUTOSAR SWC Design & Development | Component design / Interface definition / SWC development / UML / Integration review |
+| `autosar/autosar-bsw/` | AUTOSAR BSW & COM Stack | BSW configuration / ARXML debugging / RTE generation / COM stack debugging |
+| `code-quality/misra/` | MISRA C:2025 | Review / Develop (+ `references/rules.md`) |
+| `code-quality/code-review/` | Embedded C Code Review | Correctness review / Naming-convention review |
+| `requirements/requirements/` | Requirements Engineering | Elicitation / Refinement / Traceability |
+| `safety/iso26262/` | ISO 26262 Functional Safety | HARA + ASIL / Safety Goals + FSC (+ `references/asil-table.md`) |
+| `testing/embedded-testing/` | Embedded Testing | Unit-test generation / Boundary value analysis |
+| `debugging/embedded-debugging/` | Embedded Debugging | Problem-report triage / Targeted fault debugging |
+| `change-management/change-and-impact/` | Change Management | CR analysis / Impact analysis |
+
+Each SKILL.md uses mode dispatch in `## Instructions`: it reads the input shape and routes to the appropriate sub-workflow, with one example per mode and a per-mode `## Output format` block. Three skills carry optional `references/` companion files for content too large for the prompt (rule lists, lookup tables, layer walks).
 
 ### `CODEBASE_MAP.md`
 
