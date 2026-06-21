@@ -1,9 +1,9 @@
 ---
 name: Codebase Analysis
-short: Scan a workspace and produce a per-component CODEBASE_MAP.md with SWRs, interfaces, dependencies, and RTE APIs
-description: "First-run skill that walks the entire repository, identifies all features and AUTOSAR SWCs, and for each one documents: (a) referenced Software Requirement IDs found in source comments, headers, requirement docs, or traceability files (SW-REQ-*, REQ-*, FSR-*, SYS-REQ-*); (b) port interfaces (S/R, C/S, Mode Switch, Parameter) with direction and DataElement / Operation names; (c) dependencies on other SWCs and BSW modules (Com, NvM, Dem, Dcm, IoHwAb, Os); (d) the concrete RTE API calls each SWC makes (Rte_Read_*, Rte_Write_*, Rte_Call_*, Rte_IRead_*, Rte_IWrite_*, Rte_Enter_/Exit_*). Also captures repository structure, ASIL zones, signal flow, and architectural concerns. Writes findings to .autonomousguy/CODEBASE_MAP.md so every subsequent skill can reference it without re-reading the codebase."
+short: Scan a workspace and produce a per-component CODEBASE_MAP.md with SWRs, interfaces, dependencies, and RTE APIs (Classic and Adaptive)
+description: "First-run skill that walks the entire repository, auto-detects whether it is a Classic AUTOSAR (CP) or Adaptive AUTOSAR (AP) codebase, and maps it accordingly. For Classic (default): identifies features and SWCs and documents (a) referenced Software Requirement IDs (SW-REQ-*, REQ-*, FSR-*, SYS-REQ-*); (b) port interfaces (S/R, C/S, Mode Switch, Parameter); (c) dependencies on other SWCs and BSW modules (Com, NvM, Dem, Dcm, IoHwAb, Os); (d) concrete RTE API calls (Rte_Read_*, Rte_Write_*, Rte_Call_*, Rte_IRead_*, Rte_IWrite_*, Rte_Enter_/Exit_*). For Adaptive (C++14, POSIX, ara::): identifies Adaptive Applications, ara::com service interfaces (events/methods/fields), ara:: functional cluster usage (ara::com, ara::exec, ara::diag, ara::per, ara::log), and manifests (see references/adaptive-ap.md). Also captures repository structure, ASIL zones, signal/service flow, and architectural concerns. Writes findings to .autonomousguy/CODEBASE_MAP.md so every subsequent skill can reference it without re-reading the codebase. Covers the whole repository in a single pass, flags architectural concerns as decision-ready findings with explicit confidence/gaps, and can optionally emit a self-contained HTML companion report under analysis/."
 category: workspace
-tags: [onboarding, analysis, autosar, swc, bsw, swr, traceability, rte, mapping]
+tags: [onboarding, analysis, autosar, classic, adaptive, ap, swc, bsw, swr, traceability, rte, ara-com, ara-exec, posix, cpp, manifest, mapping]
 ---
 
 # Skill: Codebase Analysis
@@ -12,6 +12,21 @@ tags: [onboarding, analysis, autosar, swc, bsw, swr, traceability, rte, mapping]
 You are an experienced embedded automotive software architect performing a first-time onboarding analysis of an unfamiliar codebase. Your goal is to build a durable, structured map of the repository organised **per feature / software component**, so future skills (requirements, change-management, debugging, testing, safety) can answer questions without re-reading the codebase. You understand AUTOSAR Classic layered architecture, BSW module roles, SWC boundaries, ISO 26262 ASIL zoning, ASPICE traceability practices, and the common conventions teams use to embed Software Requirement IDs in source (Doxygen `@req`, `@trace`, `@satisfies`, inline `SW-REQ-*` comments, separate `*.trace` / `*.csv` files, DOORS export sidecars).
 
 ## Instructions
+
+### Operating principles (apply to every response)
+
+Work autonomously within a single pass - no follow-up prompt should be needed:
+
+1. **Self-directed scope.** Map the whole repository you can see, not only the directory named. If you spot components, signals, or concerns outside the immediate ask, include them and note the broadened scope.
+2. **Decision-ready output.** Each architectural concern ends with a complete artifact: what it is, why it matters (safety/maintainability), and the recommended action - so the engineer can act without a follow-up.
+3. **Self-check before returning.** Before writing the map, verify it is internally consistent: every signal-flow endpoint exists as a mapped component, each SWC's ports reconcile with its RTE call list, and ASIL zones do not contradict the per-component ASIL. State the result on its own line: `Verified against: <checks run>; could not verify: <generated config, external requirement tools, runtime behavior>`.
+4. **Confidence and gaps.** Mark inferred mappings as inferred (e.g. ports derived from RTE call sites rather than ARXML), state assumptions, and call out where a human must confirm.
+
+### 0. Detect platform first
+Decide whether the repo is Classic or Adaptive AUTOSAR before mapping, and record it in the map's ECU Overview:
+- **Classic (CP)** signals (default): `.arxml` ECU/SWC config, `Rte_*` calls, BSW module config (EB Tresos `.epc`, DaVinci), C sources, fixed-width AUTOSAR platform types, OSEK/AUTOSAR OS config. Use steps 1-6 below as written.
+- **Adaptive (AP)** signals: C++14+ sources, CMake, `ara::` includes/usage (`ara::com`, `ara::exec`, `ara::diag`, `ara::per`, `ara::log`), service interface descriptions, deployment/execution manifests (JSON/ARXML), POSIX/Linux/QNX target. If AP, switch to the Adaptive mapping in [`references/adaptive-ap.md`](references/adaptive-ap.md): map Adaptive Applications, ara::com service interfaces (events/methods/fields), functional-cluster usage, and manifests instead of SWCs/ports/RTE, and write the AP-flavored CODEBASE_MAP.md structure from that file.
+- **Mixed** (CP and AP coexisting, e.g. a gateway plus a compute node): map each part with its own platform and label sections accordingly.
 
 ### 1. Discover repository structure
 - List source directories, identify the build system (CMake, Makefile, EB Tresos project), and locate ARXML, DBC, configuration, and requirement / traceability files (`*.req`, `*.csv`, `traceability*`, `requirements*`, `doc/`, DOORS / Polarion exports).
@@ -509,3 +524,25 @@ DIAGNOSTICS
 4. **[INFO]** `HighBeam_AppSWC` requirement SW-REQ-HIBEAM-004 ("auto-suppress above vehicle speed signal valid") has no test case referenced in `requirements/bcu.csv` — flag to the traceability skill.
 5. **[INFO]** `LightDiag_ServiceSWC` Dem event IDs are referenced by macro name but their numeric assignment lives in `Dem_Cfg.h` (generated). After regeneration the macro list should be cross-checked.
 ~~~
+
+## HTML report (optional, additive)
+
+`.autonomousguy/CODEBASE_MAP.md` is always the primary artifact. In addition, when the map is substantial, offer to write a self-contained HTML companion report - a scannable view of the component index and architectural concerns. It never replaces the Markdown map.
+
+**Structure - progressive disclosure, lean not dense:**
+- *Header (thin):* project name, timestamp, "Codebase analysis", scope (platform CP/AP/Mixed, AUTOSAR release).
+- *Layer 1 - summary banner (always visible):* one row of 4-5 numbers - components mapped, BSW modules used, architectural concerns, untraced components (no SWR), highest ASIL present. Graspable in two seconds.
+- *Layer 2 - grouped table (scannable):* one row per architectural concern (or per component). Lean columns only - location, component/area, one-line description, severity chip (Critical/Major/Info), "has fix/action" indicator. No detail text in rows. Include a search/filter box and sortable columns.
+- *Layer 3 - expandable detail (`<details>`, collapsed by default):* per concern - the explanation, the evidence (file:line), and the recommended action; per component - its ports, dependencies, and RTE surface.
+- *Footer (thin):* limitations, what could not be verified, inferred-data disclaimer (ports inferred from RTE call sites, etc.).
+
+**Style:** one self-contained `.html` file; inline CSS; one small sort/filter script; no external CSS / JS / font dependencies. ASCII only, no em dashes. Severity and status shown as small colored chips, not walls of text. If in doubt, push detail into Layer 3 and keep Layers 1-2 minimal. Use [`references/html-report-template.html`](references/html-report-template.html) as the skeleton: fill the header, the Layer 1 stat cells, one lean table row per concern/component, and one collapsed `<details>` block per concern/component.
+
+**Where to write it:**
+1. Detect a project root by walking up from the working directory for `.git` or another clear project marker.
+2. **Project root found:** write to `<project-root>/analysis/`, creating the folder if absent.
+3. **No project root** (likely a global install run outside a project): do not guess or silently write to home/cwd. Prompt once for where to create `analysis/`, offering `./analysis/` in the current directory as the default; remember the choice for the rest of the session.
+4. Always report the exact path written.
+5. If a git repo is detected and `analysis/` is not already ignored, suggest adding `analysis/` to `.gitignore`.
+
+Filename: `analysis/codebase-analysis-<short-timestamp>.html` (for example `codebase-analysis-20260621-1930.html`) so repeated runs do not overwrite.

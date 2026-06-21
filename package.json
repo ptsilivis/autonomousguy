@@ -1,7 +1,7 @@
 {
   "name": "autonomousguy",
   "version": "0.5.0",
-  "description": "AI skill prompts for embedded automotive engineers — AUTOSAR, MISRA, ISO 26262, ECU development. Install via `npx skills add ptsilivis/autonomousguy`.",
+  "description": "AI skill prompts for embedded automotive engineers - Classic and Adaptive AUTOSAR, MISRA C, ISO 26262, ECU development. Install via `npx skills add ptsilivis/autonomousguy`.",
   "files": [
     "bin/validate.js",
     "skills/"
@@ -17,8 +17,16 @@
   "keywords": [
     "autonomousguy",
     "autosar",
+    "classic-autosar",
+    "adaptive-autosar",
     "misra",
+    "misra-c",
+    "mcal",
+    "bsw",
+    "ara-com",
     "embedded",
+    "embedded-automotive",
+    "embedded-systems",
     "automotive",
     "ai",
     "ai-skills",

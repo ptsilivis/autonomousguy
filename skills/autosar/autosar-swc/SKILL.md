@@ -1,9 +1,9 @@
 ---
 name: AUTOSAR SWC Design & Development
-short: Design SWC topology, define port interfaces, develop SWC code, generate UML, or audit AUTOSAR compliance
-description: "AUTOSAR Classic SWC expert that operates in five modes: (1) Component design — decompose a feature into SWC types (Application / Sensor-Actuator / Service / CDD / Composition), define port interfaces, specify runnables and ExclusiveAreas, and produce a plain-text composition diagram; (2) Interface definition — specify SenderReceiver / ClientServer / ModeSwitch / Parameter interfaces with correct AUTOSAR data types, scaling, units, InitValues, and AliveTimeout, producing ARXML-sketch and matching C typedef header; (3) SWC development — generate a production-ready SWC skeleton (.c + .h + ARXML) with correct RTE API calls, AUTOSAR platform types, and MISRA-aligned style; (4) Diagram generation — produce plain-text box-and-arrow component / sequence diagrams and ASCII state machines (no Mermaid / PlantUML rendering dependency) with AUTOSAR layer boundaries, ISR / Task markers, and ASIL notes; (5) Integration review — audit C source and ARXML for SWC typing, port interface alignment, RTE API naming, runnable-to-event mapping, MCAL abstraction violations, and data-type compliance. Targets EB Tresos and Vector DaVinci Developer toolchains."
+short: Design SWC topology, define port interfaces, develop SWC code, generate UML, or audit AUTOSAR compliance (Classic; also Adaptive ara::com services)
+description: "AUTOSAR SWC expert. Defaults to Classic AUTOSAR (CP: SWCs, RTE, ARXML, static config, C, AUTOSAR OS) and operates in five modes: (1) Component design — decompose a feature into SWC types (Application / Sensor-Actuator / Service / CDD / Composition), define port interfaces, specify runnables and ExclusiveAreas, and produce a plain-text composition diagram; (2) Interface definition — specify SenderReceiver / ClientServer / ModeSwitch / Parameter interfaces with correct AUTOSAR data types, scaling, units, InitValues, and AliveTimeout, producing ARXML-sketch and matching C typedef header; (3) SWC development — generate a production-ready SWC skeleton (.c + .h + ARXML) with correct RTE API calls, AUTOSAR platform types, and MISRA-aligned style; (4) Diagram generation — produce plain-text box-and-arrow component / sequence diagrams and ASCII state machines (no Mermaid / PlantUML rendering dependency) with AUTOSAR layer boundaries, ISR / Task markers, and ASIL notes; (5) Integration review — audit C source and ARXML for SWC typing, port interface alignment, RTE API naming, runnable-to-event mapping, MCAL abstraction violations, and data-type compliance. Targets EB Tresos and Vector DaVinci Developer toolchains. Also handles Adaptive AUTOSAR (AP) when the input names ara::com, ara::exec, C++14, POSIX, service-oriented (SOA), or manifests, designing Adaptive Applications and ara::com service interfaces with proxy/skeleton (see references/adaptive-ap.md). Integration review also assists legacy bring-up: isolating raw hardware access behind an MCAL/CDD interface and decomposing god-functions into runnable-sized units, in smallest safe steps. Returns decision-ready output with a built-in self-check and explicit confidence/gaps."
 category: autosar
-tags: [autosar, swc, rte, arxml, ports, runnables, diagram, eb-tresos, davinci, integration]
+tags: [autosar, classic, adaptive, ap, swc, rte, arxml, ports, runnables, diagram, eb-tresos, davinci, ara-com, ara-exec, posix, cpp, soa, service-interface, integration]
 ---
 
 # Skill: AUTOSAR SWC Design & Development
@@ -21,13 +21,38 @@ A full RTE API / port-interface / runnable-event / data-type reference is at [`r
 
 ## Instructions
 
-Decide mode from the input:
+Decide platform first, and state which you assumed in the output:
+- Default: **Classic AUTOSAR (CP)** - SWCs, RTE, ARXML, runnables, static config, C, AUTOSAR OS. Use everything below.
+- Switch to **Adaptive AUTOSAR (AP)** only if the input names ara::com / ara::exec, C++14+, POSIX / Linux / QNX, service-oriented (SOA), manifest, proxy/skeleton, or Adaptive Application. In AP there are no SWCs, ports, runnables, or RTE; you design Adaptive Applications that offer/consume ara::com service interfaces (events/methods/fields) with skeleton (provider) and proxy (consumer). For AP, follow the variant in [`references/adaptive-ap.md`](references/adaptive-ap.md), which maps each Classic mode below to its AP equivalent, and emit the same report sections with AP terms.
+
+Then decide mode from the input:
 - Feature / function description without code → **Component design**.
 - Signal / command list needing interface specification → **Interface definition**.
 - Full SWC specification ready to implement → **SWC development**.
 - Request for a diagram (component / sequence / state machine) → **Diagram generation**.
 - Existing SWC code / ARXML to audit → **Integration review**.
 - Combined ("design and implement", "interface and code") → run modes in order: design → interface → development; offer a diagram afterward.
+- Legacy C with raw hardware access / a god-function, plus a request to refactor toward AUTOSAR → **Integration review** with the legacy bring-up steps below.
+
+### Operating principles (apply to every response)
+
+Work autonomously within a single pass - no follow-up prompt should be needed:
+
+1. **Self-directed scope.** Cover the whole component or file you can see - all ports, runnables, and RTE calls - not only the element named. If related issues exist in the same SWC, address them and note the broadened scope.
+2. **Decision-ready output.** End with a complete artifact: the design, the ARXML-sketch and matching C, or the review findings with fixes - so the engineer can act without a follow-up.
+3. **Self-check before returning.** Verify the output against AUTOSAR hard rules: every RTE API name matches its port direction and element, runnable-to-event mapping is consistent, no MCAL/register access from Application or Service SWCs, and data types are AUTOSAR platform types. State the result on its own line: `Verified against: <checks run>; could not verify: <generated RTE, full ARXML, toolchain version>`.
+4. **Confidence and gaps.** State assumptions (ASIL, toolchain, missing ARXML), mark inferred ports/types as inferred, and call out where the integrator must decide.
+
+### Legacy bring-up: toward a clean SWC
+
+When the input is legacy C being moved into an AUTOSAR SWC structure, do not propose a rewrite. Work in smallest safe steps, ordered by risk:
+
+1. **Isolate hardware.** Wrap every raw register/peripheral access behind an MCAL or CDD interface so the algorithm becomes hardware-independent and RTE-portable. This is the highest-value first step.
+2. **Find the component seams.** Identify the SWC type the code should become (Application / Sensor-Actuator / Service / CDD) and the ports it implies; map existing globals to S/R or C/S DataElements.
+3. **Decompose god-functions.** Split a monolithic function into runnable-sized units with single responsibilities, each independently testable.
+4. **Prove equivalence first.** For each step, pair it with characterization tests (defer to the embedded-testing skill) so behaviour is pinned before the move.
+
+State which step is safe to ship first and what it depends on.
 
 ### Component design
 
@@ -117,6 +142,8 @@ Produce plain-text box-and-arrow diagrams inside a fenced code block. No Mermaid
 - **Integration review**: SWC C source / header with RTE API calls; optionally ARXML excerpt, integration problem description, EB Tresos error log.
 
 ## Output format
+
+Begin every response with a one-line platform header: `Platform: Classic (CP)` or `Platform: Adaptive (AP)`. For Adaptive, use the AP report layouts in `references/adaptive-ap.md`; the Classic layouts below otherwise.
 
 ### Component design
 

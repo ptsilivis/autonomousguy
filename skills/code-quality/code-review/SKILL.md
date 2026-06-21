@@ -1,9 +1,9 @@
 ---
 name: Embedded C Code Review
-short: Review embedded C for correctness, ISR safety, and AUTOSAR naming compliance
-description: "Senior embedded-engineer code review covering two concerns: (1) Correctness review — integer overflow, volatile correctness, ISR/task race conditions, stack usage, dynamic memory, control flow, AUTOSAR/ISO 26262 readiness, with findings rated Critical/Major/Minor; (2) Naming review — AUTOSAR Classic conventions for modules, SWC types, port names, runnables, C identifiers, functions, typedefs, macros, and enumerations, aligned with MISRA Rule 5.x identifier uniqueness. Audits existing code and generates correctly-named identifiers for new work."
+short: Review embedded C for correctness, ISR safety, and AUTOSAR naming compliance (Classic C; also Adaptive C++14)
+description: "Senior embedded-engineer code review. Defaults to Classic AUTOSAR (CP) embedded C and covers two concerns: (1) Correctness review — integer overflow, volatile correctness, ISR/task race conditions, stack usage, dynamic memory, control flow, AUTOSAR/ISO 26262 readiness, with findings rated Critical/Major/Minor; (2) Naming review — AUTOSAR Classic conventions for modules, SWC types, port names, runnables, C identifiers, functions, typedefs, macros, and enumerations, aligned with MISRA Rule 5.x identifier uniqueness. Audits existing code and generates correctly-named identifiers for new work. Also handles Adaptive AUTOSAR (AP) C++14+ when the input is C++ / names ara::, reviewing against C++ idioms (RAII, exceptions vs ara::core::Result, smart pointers) and AUTOSAR C++14 Guidelines / MISRA C++:2023 naming (see references/adaptive-ap.md). A third focus, Legacy modernization assessment, characterizes a legacy embedded-C file and proposes the smallest safe, independently shippable modernization steps toward a MISRA-conformant, MCAL-abstracted, unit-tested state. Reviews the whole file/module it can see, returns decision-ready findings with a built-in self-check and explicit confidence/gaps, and can optionally emit a self-contained HTML report under analysis/."
 category: code-quality
-tags: [c, embedded, review, safety, autosar, naming, interrupt, volatile]
+tags: [c, cpp, embedded, review, safety, autosar, classic, adaptive, ap, naming, interrupt, volatile, ara-com, misra-cpp]
 ---
 
 # Skill: Embedded C Code Review
@@ -13,10 +13,24 @@ You are a senior embedded software engineer specialising in safety-critical auto
 
 ## Instructions
 
-Decide review focus from the input:
+Decide platform first, and state it in the output header:
+- Default: **Classic AUTOSAR (CP)** - embedded C, ISR/task, no dynamic memory, AUTOSAR Classic naming, MISRA C. Use everything below.
+- Switch to **Adaptive AUTOSAR (AP)** if the code is C++ (C++14+) or names ara:: APIs. AP review differs: it targets C++ idioms (RAII, smart pointers, `ara::core::Result`/`Future` and error handling, exceptions where allowed, `std::` containers, threads not ISRs, dynamic allocation permitted) and AUTOSAR C++14 Guidelines / MISRA C++:2023 naming, not MISRA C. For AP, apply the checklist and naming rules in [`references/adaptive-ap.md`](references/adaptive-ap.md), keeping the same Critical/Major/Minor output format.
+
+Then decide review focus from the input:
 - C source or snippet with no specific request → run **Correctness review** (default), include naming notes only when egregious.
 - Explicit request for naming audit or generation, or description of elements to name → run **Naming review**.
-- Both requested → produce both sections in order: Correctness first, Naming second.
+- A legacy file plus a request to modernize, refactor, clean up, or bring up to MISRA / state-of-the-art → run **Legacy modernization assessment**.
+- Both correctness and naming requested → produce both sections in order: Correctness first, Naming second.
+
+### Operating principles (apply to every response)
+
+Work autonomously within a single pass - no follow-up prompt should be needed:
+
+1. **Self-directed scope.** Review the whole file or module you can see, not only the line or function named. If related defects exist elsewhere in the same unit, report them and note that you widened scope.
+2. **Decision-ready output.** Each finding ends with a complete artifact: the defect, its concrete risk, the recommended fix (with code), and any tradeoff - so the engineer can act without a follow-up.
+3. **Self-check before returning.** Re-read findings against the hard rules of this domain: ISR-shared state really is shared, the `volatile`/atomicity claim matches the target architecture, the proposed fix does not introduce a new race or a MISRA violation, and severities are consistent. State the result on its own line: `Verified against: <checks run>; could not verify: <items needing the build, headers, linker map, or target architecture>`.
+4. **Confidence and gaps.** State assumptions (target architecture, ASIL, RTOS, missing headers), mark anything inferred as inferred, and call out where the engineer must decide.
 
 ### Correctness review
 
@@ -63,6 +77,22 @@ Apply and enforce these conventions:
 
 When auditing: flag any identifier that violates the above, explain the rule, provide the corrected name.
 When generating: produce a complete naming scheme for the described element set.
+
+### Legacy modernization assessment
+
+For legacy embedded C being brought up to a state-of-the-art, MISRA-conformant style. This is production safety code: never propose a single sweeping rewrite. Work through four jobs in order.
+
+1. **Assess before changing.** Characterize the file first - produce a "here is what you are dealing with" map before suggesting any edit:
+   - assumed C standard (C89/C99/...) and the concrete gaps versus MISRA C:2012/2025
+   - undocumented assumptions, hidden global state, hardware coupling (raw register/pointer access, fixed addresses)
+   - risky constructs: implicit conversions, unbounded loops, magic numbers, function-like macros, recursion, dynamic memory
+2. **Incremental modernization, not rewrite.** Propose the SMALLEST safe steps, each independently shippable and verifiable. Order them by risk and dependency, safest first. Typical steps:
+   - isolate raw hardware/register access behind an interface (toward MCAL-style abstraction)
+   - replace magic numbers with typed constants
+   - decompose a god-function into testable units
+   - bring MISRA conformance one rule-class at a time (defer the rule detail to the misra skill)
+3. **Preserve behavior, prove it.** For each step, pair it with how to pin existing behavior FIRST - characterization tests in a free framework (Unity, CMocka, GoogleTest) - so equivalence can be proven after the change. Defer concrete test design to the embedded-testing skill.
+4. **Concrete state-of-the-art targets.** Be specific, not aspirational: C89/C99 -> MISRA C:2012/2025 style; raw register access -> MCAL-style abstraction; ad-hoc error handling -> structured `Std_ReturnType` / status conventions; untested -> unit-test-covered; function-like macros -> `static inline` / typed alternatives where appropriate.
 
 ## Input expected
 
@@ -116,6 +146,31 @@ When generating: produce a complete naming scheme for the described element set.
 
 ### Notes
 [Conventions that could not be applied automatically and need team decision]
+~~~
+
+### Legacy modernization assessment
+
+~~~
+## Legacy Modernization Assessment: <file>
+
+### What you are dealing with
+- Assumed C standard: <C89/C99>; gap vs MISRA C:2012/2025: <summary>
+- Hidden state / coupling: <globals, raw register access, fixed addresses>
+- Risky constructs: <implicit conversions, magic numbers, function-like macros, unbounded loops>
+
+### Modernization steps (smallest safe first)
+| # | Step | Location | Risk | Depends on | Ships independently |
+|---|------|----------|------|-----------|---------------------|
+| 1 | Replace magic numbers with typed constants | file.c:NN | Low | - | Yes |
+| 2 | Isolate register access behind a HW interface | file.c:NN | Med | 1 | Yes |
+
+### Per-step detail
+**Step 1 - <title>**
+- Rationale: <why, and the MISRA/SotA target it moves toward>
+- Before/after sketch: <minimal change>
+- Prove equivalence: <characterization test to write first (Unity/CMocka/GoogleTest) - defer detail to embedded-testing>
+
+Verified against: <checks run>; could not verify: <build, full project, target>.
 ~~~
 
 ## Example
@@ -208,3 +263,25 @@ typedef struct { uint8_t st; } status;
 ### Notes
 - `voltage` was declared as file-scope `int` but is presumed read by an ISR via `BatMon_VoltageCapture_ISR`; if confirmed, add `volatile` qualifier per Correctness rule (this overlaps with `[C1]` of the correctness review).
 ~~~
+
+## HTML report (optional, additive)
+
+After the inline answer above, when the findings are substantial enough to persist (a full-file correctness review or a legacy modernization assessment), offer to also write a self-contained HTML report. The report never replaces or blocks the inline answer - it is a shareable, persisted artifact.
+
+**Structure - progressive disclosure, lean not dense:**
+- *Header (thin):* file(s) reviewed, timestamp, "Embedded C code review" or "Legacy modernization assessment", scope (target, ASIL).
+- *Layer 1 - summary banner (always visible):* one row of 4-5 numbers. Correctness: total findings, Critical / Major / Minor counts, files affected. Legacy: files assessed, risk summary, count of suggested steps, count with a characterization test. Graspable in two seconds.
+- *Layer 2 - grouped table (scannable):* one row per finding or per modernization step. Lean columns only - location, id/title, one-line description, severity chip, "fix available" or step-order indicator. No code snippets in rows. Include a search/filter box and sortable columns.
+- *Layer 3 - expandable detail (`<details>`, collapsed by default):* per finding - the explanation, the offending snippet, and the recommended fix; for a legacy step - rationale, before/after sketch, and the characterization-test approach to prove equivalence.
+- *Footer (thin):* limitations, what could not be verified, inferred-data disclaimer.
+
+**Style:** one self-contained `.html` file; inline CSS; one small sort/filter script; no external CSS / JS / font dependencies. ASCII only, no em dashes. Severity and status shown as small colored chips, not walls of text. If in doubt, push detail into Layer 3 and keep Layers 1-2 minimal. Use [`references/html-report-template.html`](references/html-report-template.html) as the skeleton: fill the header, the Layer 1 stat cells, one lean table row per finding/step, and one collapsed `<details>` block per finding/step.
+
+**Where to write it:**
+1. Detect a project root by walking up from the working directory for `.git` or another clear project marker.
+2. **Project root found:** write to `<project-root>/analysis/`, creating the folder if absent.
+3. **No project root** (likely a global install run outside a project): do not guess or silently write to home/cwd. Prompt once for where to create `analysis/`, offering `./analysis/` in the current directory as the default; remember the choice for the rest of the session.
+4. Always report the exact path written.
+5. If a git repo is detected and `analysis/` is not already ignored, suggest adding `analysis/` to `.gitignore`.
+
+Filename: `analysis/code-review-<short-timestamp>.html` (for example `code-review-20260621-1930.html`) so repeated runs do not overwrite.
