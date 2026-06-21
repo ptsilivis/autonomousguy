@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analysis Report</title>
+<!--
+  Shared report skeleton for autonomousguy skills. Self-contained: inline CSS,
+  one small sort/filter script, no external dependencies. ASCII only, no em dashes.
+  Fill the placeholders below. Keep Layers 1-2 lean; push detail into Layer 3.
+  The skill decides the Layer 1 metrics, the table columns, and the detail content.
+-->
+<style>
+  :root {
+    --fg: #1b1f24; --muted: #5b6470; --line: #e1e4e8; --bg: #ffffff;
+    --chip-red-bg: #ffe3e3; --chip-red-fg: #9b1c1c;
+    --chip-amber-bg: #fff4d6; --chip-amber-fg: #8a5a00;
+    --chip-blue-bg: #e3effe; --chip-blue-fg: #1b4f9b;
+    --chip-gray-bg: #eceff2; --chip-gray-fg: #44505c;
+    --chip-green-bg: #e3f7e8; --chip-green-fg: #1d6b34;
+  }
+  body { margin: 0; padding: 0 20px 40px; color: var(--fg); background: var(--bg);
+    font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px; line-height: 1.45; }
+  header { padding: 18px 0 10px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 18px; margin: 0 0 4px; }
+  header .meta { color: var(--muted); font-size: 12px; }
+  /* Layer 1 - summary banner */
+  .summary { display: flex; flex-wrap: wrap; gap: 14px; margin: 16px 0; }
+  .stat { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-width: 96px; }
+  .stat .n { font-size: 22px; font-weight: 600; }
+  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  /* Controls */
+  .controls { margin: 8px 0 6px; }
+  .controls input { width: 280px; max-width: 100%; padding: 6px 9px; font-size: 13px;
+    border: 1px solid var(--line); border-radius: 6px; }
+  /* Layer 2 - table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { cursor: pointer; user-select: none; white-space: nowrap; background: #fafbfc; }
+  th[data-sort]:after { content: " \2195"; color: var(--muted); font-size: 10px; }
+  tbody tr:hover { background: #fafbfc; }
+  /* Chips */
+  .chip { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .chip-mandatory, .chip-high, .chip-critical { background: var(--chip-red-bg); color: var(--chip-red-fg); }
+  .chip-required, .chip-medium, .chip-major { background: var(--chip-amber-bg); color: var(--chip-amber-fg); }
+  .chip-advisory, .chip-low, .chip-minor { background: var(--chip-blue-bg); color: var(--chip-blue-fg); }
+  .chip-info { background: var(--chip-gray-bg); color: var(--chip-gray-fg); }
+  .chip-fix { background: var(--chip-green-bg); color: var(--chip-green-fg); }
+  /* Layer 3 - details */
+  .details { margin-top: 22px; }
+  .details h2 { font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  details { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; padding: 6px 12px; }
+  details summary { cursor: pointer; font-weight: 600; }
+  details pre { background: #f6f8fa; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 12px; }
+  details .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; margin-top: 10px; }
+  footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Header (thin): what was analyzed, timestamp, skill/tool, scope -->
+<header>
+  <h1>{{REPORT_TITLE}}</h1>
+  <div class="meta">{{SCOPE}} &middot; {{SKILL_NAME}} &middot; generated {{TIMESTAMP}}</div>
+</header>
+
+<!-- Layer 1: summary banner - 4 to 5 numbers only -->
+<section class="summary">
+  <div class="stat"><div class="n">{{N1}}</div><div class="l">{{L1}}</div></div>
+  <div class="stat"><div class="n">{{N2}}</div><div class="l">{{L2}}</div></div>
+  <div class="stat"><div class="n">{{N3}}</div><div class="l">{{L3}}</div></div>
+  <div class="stat"><div class="n">{{N4}}</div><div class="l">{{L4}}</div></div>
+  <div class="stat"><div class="n">{{N5}}</div><div class="l">{{L5}}</div></div>
+</section>
+
+<!-- Layer 2: grouped table - one lean row per finding, no snippets here -->
+<div class="controls">
+  <input id="filter" type="text" placeholder="Filter findings..." oninput="filterRows()">
+</div>
+<table id="findings">
+  <thead>
+    <tr>
+      <th data-sort="0">Location</th>
+      <th data-sort="1">ID / Rule</th>
+      <th data-sort="2">Description</th>
+      <th data-sort="3">Severity</th>
+      <th data-sort="4">Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Example rows; replace with one row per finding. Link the Fix cell or a row id to its detail below. -->
+    <tr>
+      <td>file.c:42</td><td>Rule 14.4</td><td>Controlling expression not essentially Boolean</td>
+      <td><span class="chip chip-required">Required</span></td>
+      <td><span class="chip chip-fix">fix</span></td>
+    </tr>
+    <tr>
+      <td>file.c:8</td><td>Dir 4.6</td><td>Bare int used; prefer fixed-width type</td>
+      <td><span class="chip chip-advisory">Advisory</span></td>
+      <td><span class="chip chip-fix">fix</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Layer 3: expandable detail, collapsed by default -->
+<section class="details">
+  <h2>Details</h2>
+  <details>
+    <summary>file.c:42 - Rule 14.4 (Required)</summary>
+    <div class="label">Why it fires</div>
+    <div>{{EXPLANATION}}</div>
+    <div class="label">Offending snippet</div>
+    <pre>{{SNIPPET}}</pre>
+    <div class="label">Suggested rewrite</div>
+    <pre>{{REWRITE}}</pre>
+    <div class="label">Deviation (if applicable)</div>
+    <div>{{DEVIATION_JUSTIFICATION_SKELETON}}</div>
+  </details>
+  <!-- Repeat one <details> per finding. -->
+</section>
+
+<!-- Footer (thin): limitations, what could not be verified, inferred-data disclaimer -->
+<footer>
+  {{LIMITATIONS}} Could not verify: {{COULD_NOT_VERIFY}}. Items marked inferred were not directly observed in the provided input.
+</footer>
+
+<script>
+  function filterRows() {
+    var q = document.getElementById('filter').value.toLowerCase();
+    var rows = document.querySelectorAll('#findings tbody tr');
+    rows.forEach(function (r) {
+      r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+    });
+  }
+  document.querySelectorAll('#findings th[data-sort]').forEach(function (th) {
+    th.addEventListener('click', function () {
+      var idx = +th.getAttribute('data-sort');
+      var tb = document.querySelector('#findings tbody');
+      var rows = Array.prototype.slice.call(tb.querySelectorAll('tr'));
+      var asc = th.getAttribute('data-asc') !== 'true';
+      th.setAttribute('data-asc', asc);
+      rows.sort(function (a, b) {
+        var x = a.cells[idx].textContent.trim().toLowerCase();
+        var y = b.cells[idx].textContent.trim().toLowerCase();
+        return asc ? (x < y ? -1 : x > y ? 1 : 0) : (x > y ? -1 : x < y ? 1 : 0);
+      });
+      rows.forEach(function (r) { tb.appendChild(r); });
+    });
+  });
+</script>
+</body>
+</html>

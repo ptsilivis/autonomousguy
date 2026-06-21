@@ -1,6 +1,9 @@
 # local review / planning docs — not for version control
 docs/
 
+# Claude Code guidance — kept local, not published to GitHub or npm
+CLAUDE.md
+
 # dependencies
 node_modules/
 

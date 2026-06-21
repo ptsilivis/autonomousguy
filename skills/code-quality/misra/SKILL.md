@@ -1,7 +1,7 @@
 ---
 name: MISRA C:2025
 short: Audit existing C code for MISRA C:2025 violations or write new code that is compliant by construction
-description: "MISRA C:2025 expert that operates in two modes: (1) Review — scan existing C code for violations across all ~223 guidelines (22 directives + ~201 rules), report findings with rule IDs, corrected code, and deviation justification templates; (2) Develop — generate new C functions, modules, or data structures that are MISRA-compliant from the first line, applying the essential type model, safe control flow, and banned-construct avoidance from the start. Covers C:2023 base (C:2012 + Amd1 security + Amd2/Amd3 C11/C18 + Amd4 multithreading) plus the four C:2025 additions (Rules 8.18, 8.19, 11.11, 19.3), Rule 15.5 disapplication, and 69 refined guidelines."
+description: "MISRA C:2025 expert that operates in two modes: (1) Review — scan existing C code for violations across all ~223 guidelines (22 directives + ~201 rules), report findings with rule IDs, corrected code, and deviation justification templates; (2) Develop — generate new C functions, modules, or data structures that are MISRA-compliant from the first line, applying the essential type model, safe control flow, and banned-construct avoidance from the start. Covers C:2023 base (C:2012 + Amd1 security + Amd2/Amd3 C11/C18 + Amd4 multithreading) plus the four C:2025 additions (Rules 8.18, 8.19, 11.11, 19.3), Rule 15.5 disapplication, and 69 refined guidelines. Reviews the whole translation unit it can see (not only the lines flagged), returns decision-ready findings with a built-in self-check and explicit confidence/gaps, and can optionally emit a self-contained HTML report under analysis/."
 category: code-quality
 tags: [misra, c, compliance, safety, embedded, automotive]
 ---
@@ -26,6 +26,15 @@ Decide mode from the input:
 - If the user provides C source/snippets and asks for a review, audit, scan, or compliance check → **Review mode**.
 - If the user provides a function/module spec and asks for an implementation → **Develop mode**.
 - If both are needed (e.g., "review and rewrite"), do Review first, then produce the rewrite via Develop.
+
+### Operating principles (apply to every response)
+
+Work autonomously within a single pass - no follow-up prompt should be needed:
+
+1. **Self-directed scope.** Review the whole translation unit you can see, not only the line or function asked about. If related violations exist elsewhere in the same file or module, report them too and note that you widened scope.
+2. **Decision-ready output.** Each finding ends with a complete artifact: the violation, why it fires, the recommended resolution (fix or documented deviation), and the tradeoff between them - so the engineer can act without asking a follow-up.
+3. **Self-check before returning.** Re-read your findings against the rules you cited: correct category (M/R/A), correct rule number, and that each "corrected version" does not itself introduce a new violation. State the result on its own line: `Verified against: <rules/checks run>; could not verify: <items needing the build, the full project, or a licensed MISRA copy>`.
+4. **Confidence and gaps.** State assumptions (assumed C standard, ASIL, missing headers/types), mark anything inferred as inferred, and call out where the engineer must decide - for example whether an advisory finding is worth a documented deviation.
 
 ### Review mode
 
@@ -95,6 +104,17 @@ Generate the requested code applying the rules below. Add inline MISRA comments 
 - **Rule 21.15, 21.17** (R): Safe `memcpy`/`memmove`/`memcmp`/`string.h` use — Amd1 security
 - **Rule 22.8–22.10** (R): `errno` discipline — Amd1 security
 - **Rules 22.11–22.20** (R): Multithreading safety — Amd4
+
+### Legacy bring-up: incremental conformance
+
+When the input is legacy embedded C being modernized toward MISRA conformance (not a clean-sheet review), do not dump every violation as one flat list to "fix all at once" - that is unsafe on production safety code. Instead:
+
+1. **Characterize first.** Before recommending any change, note the assumed C standard (C89/C99) and the gap versus MISRA C:2012/2025, and flag that existing behavior must be pinned with characterization tests (Unity / CMocka / GoogleTest) before edits, so equivalence can be proven afterward. Defer the actual test design to the embedded-testing skill.
+2. **Group by rule-class, order by risk.** Bundle findings into shippable rule-classes (e.g. first essential-type model 10.x, then control flow 14.x/15.x, then pointer casts 11.x), each an independently verifiable step. Recommend the safest, lowest-coupling class first.
+3. **Smallest safe step.** For each rule-class give the minimal mechanical change set, not a sweeping rewrite. Magic numbers -> typed constants, bare types -> fixed-width, function-like macros -> `static inline` where interchangeable.
+4. **Deviation vs fix.** Where a legacy construct is load-bearing and a fix is riskier than a documented deviation, say so and provide the deviation skeleton instead of forcing a change.
+
+State explicitly that this is a staged plan and which step is safe to ship first.
 
 ## Input expected
 
@@ -287,3 +307,25 @@ uint16 U16_SaturatingAdd(uint16 a, uint16 b)
 - [x] Rule 18.1: No pointer arithmetic
 - [x] No dynamic memory, VLAs, or recursion
 ~~~
+
+## HTML report (optional, additive)
+
+After the inline answer above, when the findings are substantial enough to persist (a set of MISRA violations with fixes, a full-file audit), offer to also write a self-contained HTML report. The report never replaces or blocks the inline answer - it is a shareable, persisted artifact.
+
+**Structure - progressive disclosure, lean not dense:**
+- *Header (thin):* file(s) analyzed, timestamp, "MISRA C:2025 review", scope (ASIL, standard year).
+- *Layer 1 - summary banner (always visible):* one row of 4-5 numbers - total violations, mandatory / required / advisory counts, files affected, count with a suggested fix. The reader grasps the shape in two seconds.
+- *Layer 2 - grouped table (scannable):* one row per finding, grouped by file or by rule. Lean columns only - location, rule id, one-line description, severity chip, "fix available" indicator. No fix text or code snippets in the rows. Include a search/filter box and sortable columns.
+- *Layer 3 - expandable detail (`<details>`, collapsed by default):* per finding - why it fires, the offending snippet, the suggested compliant rewrite, and for a Required/Advisory rule whether a documented deviation is the better call with the justification skeleton.
+- *Footer (thin):* limitations, what could not be verified, inferred-data disclaimer.
+
+**Style:** one self-contained `.html` file; inline CSS; one small sort/filter script; no external CSS / JS / font dependencies. ASCII only, no em dashes. Severity and status shown as small colored chips, not walls of text. If in doubt, push detail into Layer 3 and keep Layers 1-2 minimal. Use [`references/html-report-template.html`](references/html-report-template.html) as the skeleton: fill the header, the Layer 1 stat cells, one lean table row per finding, and one collapsed `<details>` block per finding.
+
+**Where to write it:**
+1. Detect a project root by walking up from the working directory for `.git` or another clear project marker.
+2. **Project root found:** write to `<project-root>/analysis/`, creating the folder if absent.
+3. **No project root** (likely a global install run outside a project): do not guess or silently write to home/cwd. Prompt once for where to create `analysis/`, offering `./analysis/` in the current directory as the default; remember the choice for the rest of the session.
+4. Always report the exact path written.
+5. If a git repo is detected and `analysis/` is not already ignored, suggest adding `analysis/` to `.gitignore`.
+
+Filename: `analysis/misra-<short-timestamp>.html` (for example `misra-20260621-1930.html`) so repeated runs do not overwrite.

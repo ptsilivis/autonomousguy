@@ -1,7 +1,7 @@
 ---
 name: ISO 26262 Functional Safety
 short: Run a HARA to assign ASIL or derive Safety Goals with FTTI and Functional Safety Requirements
-description: "ISO 26262 functional-safety expert that operates in two modes: (1) HARA / ASIL determination — enumerate hazardous events from item malfunctions × driving situations, rate Severity (S0–S3), Exposure (E0–E4), Controllability (C0–C3), look up ASIL from ISO 26262-3:2018 Table 4, and produce a HARA report with Safety Goals; (2) Safety Goals & FSC — translate hazardous events and ASIL into well-formed Safety Goals with safe state, Fault Tolerant Time Interval (FTTI = FDTI + FRTI), Emergency Operation Time Interval (EOTI), and high-level Functional Safety Requirements allocated to system elements. Both modes cover ASIL decomposition applicability per Part 9 §5."
+description: "ISO 26262 functional-safety expert that operates in two modes: (1) HARA / ASIL determination — enumerate hazardous events from item malfunctions × driving situations, rate Severity (S0–S3), Exposure (E0–E4), Controllability (C0–C3), look up ASIL from ISO 26262-3:2018 Table 4, and produce a HARA report with Safety Goals; (2) Safety Goals & FSC — translate hazardous events and ASIL into well-formed Safety Goals with safe state, Fault Tolerant Time Interval (FTTI = FDTI + FRTI), Emergency Operation Time Interval (EOTI), and high-level Functional Safety Requirements allocated to system elements. Both modes cover ASIL decomposition applicability per Part 9 §5. Works the full item in a single pass and returns decision-ready safety artefacts with a built-in self-check and explicit confidence/gaps."
 category: safety
 tags: [iso26262, asil, hara, safety-goals, ftti, fsr, decomposition, functional-safety]
 ---
@@ -24,6 +24,15 @@ Decide mode from the input:
 - Item or function description + intent to assess hazards → **HARA / ASIL determination**.
 - HARA output (hazardous events with ASIL) + intent to derive Safety Goals or FSRs → **Safety Goals & FSC**.
 - Both requested (full Concept Phase pass) → HARA first, then Safety Goals from its output.
+
+### Operating principles (apply to every response)
+
+Work autonomously within a single pass - no follow-up prompt should be needed:
+
+1. **Self-directed scope.** Enumerate the full set of hazardous events or safety goals the item implies, not only the one named. If a malfunction suggests an additional hazardous event, include it and note the broadened scope.
+2. **Decision-ready output.** Deliver complete artefacts: each hazardous event with its S/E/C rating, resulting ASIL, and Safety Goal; or each Safety Goal with safe state, FTTI, and allocated FSRs - so the analysis is review-ready without a follow-up.
+3. **Self-check before returning.** Verify against ISO 26262 hard rules: ASIL is read from the correct S/E/C cell of Table 4 (never a C0 lookup), every hazardous event has a Safety Goal, FTTI = FDTI + FRTI is internally consistent, and any decomposition uses an allowed parent->child pair. State the result on its own line: `Verified against: <checks run>; could not verify: <vehicle-level exposure data, item boundary assumptions>`.
+4. **Confidence and gaps.** Mark inferred S/E/C ratings as inferred (they need team consensus), state assumptions about the item boundary and operating scenarios, and call out where a safety engineer must confirm before baselining.
 
 ### HARA / ASIL determination
 
